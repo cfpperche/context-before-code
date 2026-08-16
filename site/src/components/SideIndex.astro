@@ -94,12 +94,18 @@ const here = Astro.url.pathname;
     color: var(--accent);
   }
 
+  /* On a narrow screen the index becomes a compact scrolling panel instead of
+     a 30-link wall the reader has to scroll past to reach the page. */
   @media (max-width: 68rem) {
     .index-inner {
       position: static;
-      max-height: none;
-      padding-right: 0;
-      border-bottom: var(--border-thin) solid var(--rule);
+      max-height: 13rem;
+      overflow-y: auto;
+      padding: var(--space-3) var(--space-3) var(--space-4);
+      margin-top: var(--space-4);
+      background: var(--sheet);
+      border: var(--border-thin) solid var(--rule);
+      gap: var(--space-4);
     }
   }
 </style>

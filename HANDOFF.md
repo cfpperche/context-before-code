@@ -11,6 +11,11 @@ Current state:
   repository cannot load a take-home's phase plan as its own rules
 - Operator source of truth: `AGENTS.md`
 - Gate: `./scripts/gate.sh`
+- Wiki: `site/` (Astro) → <https://cfpperche.github.io/context-before-code/>,
+  deployed by `.github/workflows/deploy.yml` on every push to `main`. It
+  renders the repository's markdown through content collections and holds no
+  rules of its own (hard rule 7). Diagrams are hand-authored SVG components;
+  `/design/` reads `site/src/styles/tokens.css` at build time.
 
 What the review changed, in case it looks surprising:
 

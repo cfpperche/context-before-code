@@ -12,13 +12,15 @@ const packet = await getCollection('packet');
 const readme = packet.find((entry) => entry.id.toLowerCase() === 'readme');
 const rendered = readme ? await render(readme) : null;
 
+// Reading order, not alphabetical: the packet is meant to be read in sequence.
+const READ_ORDER = ['brief', 'research', 'techspec', 'quality-gate'];
 const docs = packet
   .filter((entry) => entry.id.toLowerCase() !== 'readme')
-  .sort((a, b) => a.id.localeCompare(b.id))
+  .sort((a, b) => READ_ORDER.indexOf(a.id) - READ_ORDER.indexOf(b.id))
   .map((entry) => ({
     href: `${base}example/${entry.id}/`,
     title: headingOf(entry.body, entry.id),
-    id: entry.id,
+    file: entry.id === 'brief' ? 'brief.md' : `${entry.id.toUpperCase()}.md`,
   }));
 
 const adrs = (await getCollection('adrs'))
@@ -61,7 +63,7 @@ const adrs = (await getCollection('adrs'))
         <li>
           <a href={doc.href}>
             <span class="doc-title">{doc.title}</span>
-            <code class="doc-source">examples/catalog-compare-api/{doc.id.toUpperCase()}.md</code>
+            <code class="doc-source">examples/catalog-compare-api/{doc.file}</code>
           </a>
         </li>
       ))
