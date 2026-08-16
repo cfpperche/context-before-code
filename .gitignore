@@ -17,3 +17,6 @@ AGENTS.override.md
 .grok/*.local.*
 .codex/
 .cursor/
+
+# Operator-private gate denylist (personal names stay out of the tree).
+scripts/forbidden-terms.local.txt

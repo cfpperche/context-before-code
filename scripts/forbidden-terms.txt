@@ -1,0 +1,15 @@
+# Patterns the gate refuses to find in repository text (case-insensitive,
+# regex). LICENSE and this file are skipped.
+#
+# These are the structural bans from AGENTS.md rule 3: this routine is cited
+# through methods and documents, not through social posts.
+#
+# Personal names belong in scripts/forbidden-terms.local.txt, which is not
+# tracked. A denylist of names is itself a published attribution, so the one
+# thing it must never do is live in the repository it is protecting.
+x\.com
+twitter\.com
+t\.co/
+linkedin\.com/(in|posts)
+threads\.net
+bsky\.app
