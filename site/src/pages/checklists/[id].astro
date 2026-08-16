@@ -1,0 +1,24 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import Doc from '../../layouts/Doc.astro';
+import { headingOf, summaryOf } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const entries = (await getCollection('checklists')).sort((a, b) => a.id.localeCompare(b.id));
+  return entries.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+---
+
+<Doc
+  title={headingOf(entry.body, entry.id)}
+  description={summaryOf(entry.body, 'A checklist from the context-before-code routine.')}
+  eyebrow="Checklist"
+  source={`checklists/${entry.id}.md`}
+  headings={headings}
+>
+  <Content />
+</Doc>

@@ -1,0 +1,450 @@
+---
+import Base from '../layouts/Base.astro';
+import Figure from '../components/Figure.astro';
+import RoutineSpine from '../components/diagrams/RoutineSpine.astro';
+import TimeBudget from '../components/diagrams/TimeBudget.astro';
+import { getCollection } from 'astro:content';
+import { methodSteps } from '../lib/content';
+
+const base = import.meta.env.BASE_URL;
+const steps = await methodSteps(base);
+
+const inventory = [
+  { count: steps.length, label: 'method steps', href: `${base}routine/` },
+  { count: (await getCollection('prompts')).length, label: 'phase prompts', href: `${base}kit/#phase-prompts` },
+  { count: (await getCollection('kitSkills')).length, label: 'skills', href: `${base}kit/#skills` },
+  { count: (await getCollection('adrs')).length, label: 'worked ADRs', href: `${base}example/#decisions` },
+  { count: (await getCollection('checklists')).length, label: 'checklists', href: `${base}checklists/` },
+];
+
+const map = [
+  {
+    href: `${base}routine/`,
+    label: 'The routine',
+    text: 'Eight steps, each with the file it produces and the condition that lets you continue.',
+  },
+  {
+    href: `${base}kit/`,
+    label: 'The kit',
+    text: 'The blank files you copy: context, research, spec, ADR template, phase prompts, skills.',
+  },
+  {
+    href: `${base}example/`,
+    label: 'Worked example',
+    text: 'A filled packet for a fictional Catalog Compare brief. Documentation, not an application.',
+  },
+  {
+    href: `${base}checklists/`,
+    label: 'Checklists',
+    text: 'What to tick before opening the solution repository, and what not to build.',
+  },
+  {
+    href: `${base}gate/`,
+    label: 'Repository machinery',
+    text: 'The gate that has to pass before a commit, and what copy-kit.sh actually moves.',
+  },
+  {
+    href: `${base}design/`,
+    label: 'Design system',
+    text: 'The tokens this wiki is built from, and the benchmarks they were taken from.',
+  },
+];
+---
+
+<Base
+  title="A working routine for coding with an agent"
+  description="Write context, research and a spec before any implementation prompt. A working routine for a take-home, a spike, or a one-day service built with an AI coding agent."
+>
+  <div class="home">
+    <section class="hero">
+      <div class="hero-main">
+        <p class="eyebrow">Working routine · greenfield · one day or less</p>
+        <h1>Context before code</h1>
+        <p class="lede">
+          Write context, research, and a spec before any implementation prompt. Use it for a
+          take-home, a spike, or a one-day service. <b>The routine is the product.</b> The kit is
+          just the files that make the routine executable.
+        </p>
+        <div class="cta">
+          <a class="button button-primary" href={`${base}routine/`}>Walk the routine</a>
+          <a class="button" href={`${base}example/`}>Read a filled packet</a>
+        </div>
+      </div>
+
+      <aside class="sheet-card">
+        <p class="eyebrow">What is in the repository</p>
+        <ul>
+          {
+            inventory.map((item) => (
+              <li>
+                <a href={item.href}>
+                  <span class="count">{item.count}</span>
+                  <span>{item.label}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="eyebrow">Held to its own gate</p>
+        <code class="gate-cmd">./scripts/gate.sh</code>
+        <p class="card-note">
+          Structure, template naming, leftover placeholders, links, forbidden terms, and a real
+          copy-kit run — <a href={`${base}gate/`}>every commit</a>.
+        </p>
+      </aside>
+    </section>
+
+    <section class="thesis">
+      <blockquote>
+        An agent does not know what you want if you cannot explain what you want. Explaining well
+        takes experience. That experience has to become files the agent is required to read.
+      </blockquote>
+      <p class="thesis-note">
+        If the agent does not know what will be scored, it optimises for the wrong thing.
+      </p>
+    </section>
+
+    <section class="band">
+      <Figure caption="The whole routine on one line. Steps 0–4 are files on disk before a single implementation prompt is pasted; steps 5–7 are the agent working one surface at a time behind a gate you run yourself.">
+        <RoutineSpine />
+      </Figure>
+    </section>
+
+    <section class="steps">
+      <h2>Eight steps, eight stop conditions</h2>
+      <p class="section-note">
+        Every step names the artifact it produces and the condition that lets you continue. Both
+        columns are read straight out of <code>method/</code> in the repository.
+      </p>
+      <ol class="step-list">
+        {
+          steps.map((step) => (
+            <li>
+              <a href={step.href}>
+                <span class="step-num">{step.number}</span>
+                <span class="step-body">
+                  <span class="step-title">{step.title}</span>
+                  <span class="step-stop">{step.stop}</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="split">
+      <div>
+        <h2>Start here</h2>
+        <pre><code>git clone git@github.com:cfpperche/context-before-code.git
+cd context-before-code
+./scripts/copy-kit.sh ~/work/acme-takehome</code></pre>
+        <p>
+          The method pages stay in the playbook; the files you fill live in the working tree you
+          just created. Keep both open. Fill <code>CLAUDE.md</code> before you paste a single
+          implementation prompt.
+        </p>
+      </div>
+      <div>
+        <h2>What this is not</h2>
+        <ul class="not-list">
+          <li>A prompt that says "build me an API"</li>
+          <li>A completed service you can turn in</li>
+          <li>Advice to hide AI use</li>
+          <li>A substitute for architecture experience — empty templates do not write the constraints</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="band">
+      <Figure caption="A common split on an eight-hour take-home. Inverting it — code first, documents later — is vibe coding with extra files. The split is a working heuristic, not a finding from the cited methods.">
+        <TimeBudget />
+      </Figure>
+    </section>
+
+    <section class="map">
+      <h2>Around the wiki</h2>
+      <div class="map-grid">
+        {
+          map.map((item) => (
+            <a class="map-card" href={item.href}>
+              <span class="map-label">{item.label}</span>
+              <span class="map-text">{item.text}</span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .home {
+    display: grid;
+    gap: var(--space-8);
+    padding-block: var(--space-7) var(--space-9);
+  }
+
+  section {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1.6fr) minmax(16rem, 0.9fr);
+    gap: var(--space-8);
+    align-items: start;
+  }
+  .hero-main {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 46rem;
+  }
+
+  .sheet-card {
+    display: grid;
+    gap: var(--space-3);
+    background: var(--sheet);
+    border: var(--border-thin) solid var(--rule);
+    border-top: var(--border-thick) solid var(--ink);
+    padding: var(--space-4);
+    margin-top: var(--space-6);
+  }
+  .sheet-card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+  .sheet-card li a {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
+    border-bottom: var(--border-thin) solid var(--rule);
+    font-family: var(--font-display);
+    font-size: var(--size-sm);
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  .sheet-card li a:hover {
+    color: var(--ink);
+  }
+  .count {
+    font-family: var(--font-mono);
+    font-size: var(--size-md);
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    min-width: 1.5rem;
+    text-align: right;
+  }
+  .gate-cmd {
+    font-family: var(--font-mono);
+    font-size: var(--size-sm);
+    background: var(--wash);
+    border: var(--border-thin) solid var(--rule);
+    padding: var(--space-2) var(--space-3);
+  }
+  .card-note {
+    font-family: var(--font-display);
+    font-size: var(--size-xs);
+    line-height: var(--leading-normal);
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 62rem) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .sheet-card {
+      margin-top: 0;
+    }
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, var(--size-4xl));
+    letter-spacing: -0.03em;
+  }
+  .lede {
+    font-size: var(--size-xl);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+    max-width: 34ch;
+  }
+  .lede b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+  .button {
+    font-family: var(--font-display);
+    font-size: var(--size-md);
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--sheet);
+    border: var(--border-thin) solid var(--ink);
+    padding: var(--space-2) var(--space-5);
+  }
+  .button:hover {
+    background: var(--wash);
+  }
+  .button-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .button-primary:hover {
+    background: var(--accent-strong);
+    border-color: var(--accent-strong);
+  }
+
+  .thesis {
+    border-top: var(--border-thin) solid var(--rule);
+    border-bottom: var(--border-thin) solid var(--rule);
+    padding-block: var(--space-6);
+    max-width: 52rem;
+  }
+  .thesis blockquote {
+    font-size: var(--size-xl);
+    line-height: var(--leading-snug);
+    font-style: italic;
+    margin: 0;
+  }
+  .thesis-note {
+    font-family: var(--font-display);
+    font-size: var(--size-md);
+    color: var(--ink-soft);
+  }
+
+  h2 {
+    font-size: var(--size-2xl);
+  }
+  .section-note {
+    color: var(--ink-soft);
+    max-width: 60ch;
+    font-size: var(--size-md);
+  }
+
+  .step-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+    gap: 0;
+    border-top: var(--border-thin) solid var(--rule);
+  }
+  .step-list a {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-4) var(--space-4) 0;
+    border-bottom: var(--border-thin) solid var(--rule);
+    text-decoration: none;
+    color: var(--ink);
+    height: 100%;
+  }
+  .step-list a:hover {
+    background: var(--sheet);
+  }
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: var(--size-md);
+    font-weight: 600;
+    color: var(--accent);
+    border-right: var(--border-thin) solid var(--rule);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .step-body {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  .step-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--size-md);
+  }
+  .step-stop {
+    font-size: var(--size-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+  }
+
+  .split {
+    grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+    gap: var(--space-7);
+    align-items: start;
+  }
+  .split > div {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .split pre {
+    background: var(--sheet);
+    border: var(--border-thin) solid var(--rule);
+    padding: var(--space-4);
+    overflow-x: auto;
+    font-size: var(--size-sm);
+    font-family: var(--font-mono);
+    line-height: var(--leading-normal);
+  }
+  .split p {
+    color: var(--ink-soft);
+    font-size: var(--size-md);
+  }
+  .not-list {
+    margin: 0;
+    padding-left: var(--space-5);
+    color: var(--ink-soft);
+    font-size: var(--size-md);
+    display: grid;
+    gap: var(--space-2);
+  }
+  .split code {
+    background: var(--wash);
+    border: var(--border-thin) solid var(--rule);
+    padding: 0.1em 0.3em;
+  }
+  .split pre code {
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+
+  .map-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: var(--space-4);
+  }
+  .map-card {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-4);
+    background: var(--sheet);
+    border: var(--border-thin) solid var(--rule);
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .map-card:hover {
+    border-color: var(--accent);
+  }
+  .map-label {
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+  .map-text {
+    font-size: var(--size-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+  }
+</style>

@@ -1,0 +1,105 @@
+---
+import { getNav } from '../lib/nav';
+
+const base = import.meta.env.BASE_URL;
+const sections = await getNav(base);
+const here = Astro.url.pathname;
+---
+
+<nav class="index" aria-label="Wiki index">
+  <div class="index-inner">
+    {
+      sections.map((section) => (
+        <section class="index-section">
+          <h2 class="eyebrow">{section.title}</h2>
+          <ul>
+            {section.items.map((item) => (
+              <li>
+                <a href={item.href} aria-current={here === item.href ? 'page' : undefined}>
+                  {item.number && <span class="num">{item.number}</span>}
+                  <span class="label">{item.label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</nav>
+
+<style>
+  .index {
+    grid-area: index;
+  }
+
+  .index-inner {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-5));
+    display: grid;
+    gap: var(--space-5);
+    padding-block: var(--space-6);
+    padding-right: var(--space-4);
+    max-height: calc(100vh - var(--header-height) - var(--space-5));
+    overflow-y: auto;
+  }
+
+  .index-section h2 {
+    margin-bottom: var(--space-2);
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+    border-left: var(--border-thin) solid var(--rule);
+  }
+
+  a {
+    display: flex;
+    gap: var(--space-2);
+    align-items: baseline;
+    font-family: var(--font-display);
+    font-size: var(--size-sm);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: var(--space-1) var(--space-3);
+    margin-left: -1px;
+    border-left: var(--border-thick) solid transparent;
+  }
+
+  a:hover {
+    color: var(--ink);
+    background: var(--wash);
+  }
+
+  a[aria-current='page'] {
+    color: var(--ink);
+    font-weight: 600;
+    border-left-color: var(--accent);
+    background: var(--accent-wash);
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-size: var(--size-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
+  }
+
+  a[aria-current='page'] .num {
+    color: var(--accent);
+  }
+
+  @media (max-width: 68rem) {
+    .index-inner {
+      position: static;
+      max-height: none;
+      padding-right: 0;
+      border-bottom: var(--border-thin) solid var(--rule);
+    }
+  }
+</style>

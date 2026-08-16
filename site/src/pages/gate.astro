@@ -1,0 +1,217 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import { getCollection, render } from 'astro:content';
+import Doc from '../layouts/Doc.astro';
+import Figure from '../components/Figure.astro';
+import Callout from '../components/Callout.astro';
+import KitFlow from '../components/diagrams/KitFlow.astro';
+
+// Read at build time; astro build runs with the site directory as cwd.
+const gateSource = fs.readFileSync(path.join(process.cwd(), '../scripts/gate.sh'), 'utf8');
+
+/** The gate's own section banners are the honest list of what it checks. */
+const sections = [...gateSource.matchAll(/^# -+ (.+)$/gm)].map((match) => match[1].trim());
+const requiredCount = (() => {
+  const block = gateSource.match(/required=\(([\s\S]*?)\)/);
+  const listed = block ? block[1].trim().split('\n').length : 0;
+  const generated = [...gateSource.matchAll(/required\+=\(/g)].length;
+  return { listed, generated };
+})();
+
+const checks = [
+  {
+    name: 'Structure',
+    detail:
+      'Every method page, phase prompt, skill, checklist and example ADR is a required file. The old gate could pass with method/ deleted.',
+  },
+  {
+    name: 'Skills and symlinks',
+    detail: '.claude/skills and .grok/skills must resolve to .agents/skills, so every tool sees the same three project skills.',
+  },
+  {
+    name: 'Template naming',
+    detail:
+      'No live CLAUDE.md, AGENTS.md or GROK.md inside kit/ or an example packet — an agent operating the playbook would load a take-home phase plan as its own rules.',
+  },
+  {
+    name: 'Placeholders',
+    detail: 'A filled example may not contain a TODO: line or a | TODO table row. Filled means filled.',
+  },
+  {
+    name: 'Links',
+    detail: 'Every relative markdown link resolves on disk. Broken cross-references are how a cascade rots quietly.',
+  },
+  {
+    name: 'Forbidden terms',
+    detail:
+      'Structural bans live in scripts/forbidden-terms.txt. Personal names go in an untracked local list: a committed denylist of names publishes the names it exists to keep out.',
+  },
+  {
+    name: 'copy-kit smoke',
+    detail:
+      'A real copy into a temporary directory must produce the renamed agent files, the checklist, and a README that still carries the fill order.',
+  },
+];
+
+const agents = (await getCollection('root')).find((entry) => entry.id.toLowerCase() === 'agents');
+const contributing = (await getCollection('root')).find(
+  (entry) => entry.id.toLowerCase() === 'contributing'
+);
+const agentsRendered = agents ? await render(agents) : null;
+const contributingRendered = contributing ? await render(contributing) : null;
+---
+
+<Doc
+  title="Repository machinery"
+  description="The gate that must pass before a commit, what copy-kit.sh moves into a working tree, and the rules an agent operating this repository has to follow."
+  eyebrow="Reference"
+  source="scripts/gate.sh"
+  headings={[
+    { depth: 2, slug: 'the-gate', text: 'The gate' },
+    { depth: 2, slug: 'copy-kit', text: 'copy-kit.sh' },
+    { depth: 2, slug: 'agent-files', text: 'Agent files' },
+    { depth: 2, slug: 'contributing', text: 'Contributing' },
+  ]}
+>
+  <p>
+    This repository argues that an objective checklist beats "it runs". It has to hold itself to
+    that, so the routine has a gate of its own — one script, run before every commit, that fails
+    on anything the documentation claims but the tree does not deliver.
+  </p>
+
+  <pre><code>./scripts/gate.sh</code></pre>
+
+  <h2 id="the-gate">What the gate checks</h2>
+  <p class="counts">
+    <span><b>{requiredCount.listed}</b> paths listed explicitly</span>
+    <span><b>{requiredCount.generated}</b> generated groups (steps, prompts, skills, ADRs)</span>
+    <span><b>{sections.length}</b> check sections</span>
+  </p>
+
+  <dl class="checks not-prose">
+    {
+      checks.map((check) => (
+        <div class="check">
+          <dt>{check.name}</dt>
+          <dd>{check.detail}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  <Callout kind="stop">
+    <p>
+      Do not weaken the forbidden list, and do not delete a required file to make the gate green.
+      If you deliberately add or remove a method page, a prompt, a skill, or an ADR, update the
+      lists in <code>scripts/gate.sh</code> in the same commit.
+    </p>
+  </Callout>
+
+  <h2 id="copy-kit">copy-kit.sh</h2>
+  <p>
+    The kit is copied, never cloned as a submission. The script refuses a non-empty destination,
+    renames the agent templates, and records which playbook commit produced the tree.
+  </p>
+
+  <Figure caption="What travels into a working tree, what is renamed, what is generated, and what stays in the playbook.">
+    <KitFlow />
+  </Figure>
+
+  <h2 id="agent-files">Agent files</h2>
+  <p>
+    <code>AGENTS.md</code> is the canonical instruction file for every agent that operates this
+    repository; <code>CLAUDE.md</code> and <code>GROK.md</code> point at it and hold no rules of
+    their own.
+  </p>
+  {agentsRendered && (
+    <details class="embed">
+      <summary>AGENTS.md in full</summary>
+      <div class="embed-body">
+        <agentsRendered.Content />
+      </div>
+    </details>
+  )}
+
+  <h2 id="contributing">Contributing</h2>
+  {contributingRendered && (
+    <details class="embed">
+      <summary>CONTRIBUTING.md in full</summary>
+      <div class="embed-body">
+        <contributingRendered.Content />
+      </div>
+    </details>
+  )}
+</Doc>
+
+<style>
+  .counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    font-family: var(--font-mono);
+    font-size: var(--size-sm);
+    color: var(--ink-soft);
+    border-block: var(--border-thin) solid var(--rule);
+    padding-block: var(--space-3);
+  }
+  .counts b {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .checks {
+    margin: var(--space-5) 0 0;
+    display: grid;
+    border-top: var(--border-thin) solid var(--rule);
+  }
+  .check {
+    display: grid;
+    grid-template-columns: 12rem 1fr;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-bottom: var(--border-thin) solid var(--rule);
+  }
+  .check dt {
+    font-family: var(--font-mono);
+    font-size: var(--size-sm);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .check dd {
+    margin: 0;
+    font-size: var(--size-md);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+  }
+
+  .embed {
+    border: var(--border-thin) solid var(--rule);
+    background: var(--sheet);
+    margin-top: var(--space-4);
+  }
+  .embed summary {
+    padding: var(--space-3) var(--space-4);
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--size-sm);
+  }
+  .embed-body {
+    padding: var(--space-2) var(--space-4) var(--space-5);
+    border-top: var(--border-thin) solid var(--rule);
+  }
+  .embed-body :global(h1) {
+    display: none;
+  }
+  .embed-body :global(* + *) {
+    margin-top: var(--space-3);
+  }
+
+  @media (max-width: 44rem) {
+    .check {
+      grid-template-columns: 1fr;
+      gap: var(--space-1);
+    }
+  }
+</style>

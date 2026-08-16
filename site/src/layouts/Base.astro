@@ -1,0 +1,229 @@
+---
+import '@fontsource-variable/archivo/wght.css';
+import '@fontsource-variable/source-serif-4/wght.css';
+import '@fontsource-variable/source-serif-4/wght-italic.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import Search from '../components/Search.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  wide?: boolean;
+}
+
+const { title, description, wide = false } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const here = Astro.url.pathname;
+const isHere = (href: string) => (href === base ? here === href : here.startsWith(href));
+
+const primary = [
+  { href: `${base}routine/`, label: 'Routine' },
+  { href: `${base}kit/`, label: 'Kit' },
+  { href: `${base}example/`, label: 'Example' },
+  { href: `${base}checklists/`, label: 'Checklists' },
+  { href: `${base}reference/`, label: 'Reference' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · Context Before Code</title>
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={Astro.url.href} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="article" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f6f7f5'/%3E%3Cpath d='M6 8h20M6 14h14M6 20h20M6 26h9' stroke='%2314556b' stroke-width='2.5' stroke-linecap='square'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+
+    <header class="masthead">
+      <div class="masthead-inner">
+        <a class="wordmark" href={base}>
+          <span class="wordmark-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 4h18M3 10h13M3 16h18M3 22h8" stroke-linecap="square" />
+            </svg>
+          </span>
+          <span class="wordmark-text">
+            <b>Context</b> Before Code
+          </span>
+        </a>
+
+        <nav class="masthead-nav" aria-label="Sections">
+          {primary.map((item) => (
+            <a href={item.href} aria-current={isHere(item.href) ? 'true' : undefined}>{item.label}</a>
+          ))}
+        </nav>
+
+        <div class="masthead-tools">
+          <Search />
+          <a
+            class="repo-link"
+            href="https://github.com/cfpperche/context-before-code"
+            rel="noreferrer"
+          >
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">
+              <path
+                d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.05-.49.05-.49.81.06 1.24.83 1.24.83.72 1.23 1.88.88 2.34.67.07-.52.28-.88.51-1.08-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+              ></path>
+            </svg>
+            <span class="sr-only">Repository on GitHub</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <div class:list={['shell', wide && 'shell-wide']}>
+      <slot />
+    </div>
+
+    <footer class="colophon">
+      <div class="colophon-inner">
+        <p>
+          <b>Context Before Code</b> — a working routine for small greenfield work with an
+          AI coding agent. Apache-2.0.
+        </p>
+        <p class="eyebrow">
+          This wiki renders the repository's own markdown. One source of truth per fact.
+        </p>
+      </div>
+    </footer>
+
+    <style>
+      .skip {
+        position: absolute;
+        left: -999px;
+        top: var(--space-2);
+        background: var(--sheet);
+        border: var(--border-thin) solid var(--accent);
+        padding: var(--space-2) var(--space-4);
+        font-family: var(--font-display);
+        z-index: 20;
+      }
+      .skip:focus {
+        left: var(--space-4);
+      }
+
+      .masthead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: color-mix(in srgb, var(--paper) 88%, transparent);
+        backdrop-filter: blur(8px);
+        border-bottom: var(--border-thin) solid var(--rule);
+      }
+
+      .masthead-inner {
+        max-width: var(--shell-max);
+        margin-inline: auto;
+        height: var(--header-height);
+        padding-inline: var(--space-5);
+        display: flex;
+        align-items: center;
+        gap: var(--space-5);
+      }
+
+      .wordmark {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-family: var(--font-display);
+        font-size: var(--size-sm);
+        letter-spacing: var(--track-tight);
+        color: var(--ink);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .wordmark b {
+        font-weight: 600;
+      }
+      .wordmark-mark {
+        display: grid;
+        place-items: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        color: var(--accent);
+        border: var(--border-thin) solid var(--rule-strong);
+        background: var(--sheet);
+      }
+
+      .masthead-nav {
+        display: flex;
+        gap: var(--space-4);
+        margin-right: auto;
+        font-family: var(--font-display);
+        font-size: var(--size-sm);
+      }
+      .masthead-nav a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        padding: var(--space-1) 0;
+        border-bottom: var(--border-thick) solid transparent;
+      }
+      .masthead-nav a:hover {
+        color: var(--ink);
+      }
+      .masthead-nav a[aria-current] {
+        color: var(--ink);
+        border-bottom-color: var(--accent);
+      }
+
+      .masthead-tools {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+      }
+      .repo-link {
+        color: var(--ink-soft);
+        display: grid;
+        place-items: center;
+      }
+      .repo-link:hover {
+        color: var(--ink);
+      }
+
+      .shell {
+        max-width: var(--shell-max);
+        margin-inline: auto;
+        padding-inline: var(--space-5);
+      }
+
+      .colophon {
+        border-top: var(--border-thin) solid var(--rule);
+        margin-top: var(--space-9);
+        background: var(--wash);
+      }
+      .colophon-inner {
+        max-width: var(--shell-max);
+        margin-inline: auto;
+        padding: var(--space-6) var(--space-5);
+        display: grid;
+        gap: var(--space-2);
+        font-size: var(--size-sm);
+        color: var(--ink-soft);
+      }
+      .colophon b {
+        color: var(--ink);
+      }
+
+      @media (max-width: 60rem) {
+        .masthead-nav {
+          display: none;
+        }
+      }
+    </style>
+  </body>
+</html>

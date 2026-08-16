@@ -1,0 +1,29 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import Doc from '../../layouts/Doc.astro';
+import { headingOf, summaryOf } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const entries = (await getCollection('packet')).filter(
+    (entry) => entry.id.toLowerCase() !== 'readme'
+  );
+  return entries.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const title = headingOf(entry.body, entry.id);
+const description = summaryOf(entry.body, 'Part of the filled Catalog Compare packet.');
+const filename = entry.id === 'brief' ? 'brief.md' : `${entry.id.toUpperCase()}.md`;
+---
+
+<Doc
+  title={title}
+  description={description}
+  eyebrow="Worked example"
+  source={`examples/catalog-compare-api/${filename}`}
+  headings={headings}
+>
+  <Content />
+</Doc>

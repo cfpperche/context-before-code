@@ -1,0 +1,86 @@
+/*
+ * Design tokens — context-before-code wiki.
+ *
+ * The page is a procedure sheet: paper ground, hairline rules, no floating
+ * cards, numbers set in tabular figures. Scales are borrowed from documented
+ * systems rather than invented (see /design/ for the benchmark notes).
+ *
+ * Type scale        Primer typography primitives, extended at the display end
+ * Spacing / radii   Primer size primitives
+ * Body measure      Butterick, 45–90 characters
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ---- ground and ink ------------------------------------------------- */
+  /* Neutrals carry a slight petrol bias so they sit with the accent. */
+  --paper: #f6f7f5;
+  --sheet: #ffffff;
+  --wash: #ecefec;
+  --wash-strong: #e2e7e4;
+  --rule: #d5dbd7;
+  --rule-strong: #b6bfba;
+
+  --ink: #16212a;
+  --ink-soft: #55636d;
+  --ink-faint: #7d8a92;
+
+  /* ---- meaning -------------------------------------------------------- */
+  --accent: #14556b;
+  --accent-strong: #0d3d4e;
+  --accent-wash: #e4eef1;
+  --stop: #9d3a2b;
+  --stop-wash: #f6e9e6;
+  --pass: #2c6b4a;
+  --pass-wash: #e6f0ea;
+  --hold: #8a6212;
+  --hold-wash: #f6eeda;
+
+  /* ---- type ----------------------------------------------------------- */
+  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-body: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --size-xs: 0.75rem;
+  --size-sm: 0.875rem;
+  --size-md: 1rem;
+  --size-lg: 1.125rem;
+  --size-xl: 1.375rem;
+  --size-2xl: 1.75rem;
+  --size-3xl: 2.25rem;
+  --size-4xl: 3rem;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.62;
+
+  --track-tight: -0.015em;
+  --track-label: 0.09em;
+
+  /* ---- space (Primer base sizes) -------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* ---- shape ---------------------------------------------------------- */
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-full: 9999px;
+  --border-thin: 1px;
+  --border-thick: 2px;
+
+  /* ---- layout --------------------------------------------------------- */
+  --measure: 68ch;
+  --index-width: 16.5rem;
+  --rail-width: 13rem;
+  --shell-max: 84rem;
+  --header-height: 3.75rem;
+}

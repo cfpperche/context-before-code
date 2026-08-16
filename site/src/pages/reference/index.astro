@@ -1,0 +1,133 @@
+---
+import Doc from '../../layouts/Doc.astro';
+import { BLOB } from '../../lib/content';
+
+const base = import.meta.env.BASE_URL;
+
+const pages = [
+  {
+    href: `${base}bibliography/`,
+    title: 'Bibliography',
+    text: 'The published methods each step instantiates, the documents behind them, and the places where those methods contradict each other.',
+    source: 'BIBLIOGRAPHY.md',
+  },
+  {
+    href: `${base}gate/`,
+    title: 'Repository machinery',
+    text: 'The gate that runs before every commit, and what copy-kit.sh moves into a working tree.',
+    source: 'scripts/gate.sh',
+  },
+  {
+    href: `${base}design/`,
+    title: 'Design system',
+    text: 'The tokens this wiki is built from and the documented systems they were borrowed from.',
+    source: 'site/src/styles/tokens.css',
+  },
+  {
+    href: `${base}kit/`,
+    title: 'The kit',
+    text: 'Blank context, research and spec files, nine phase prompts, seven skills.',
+    source: 'kit/',
+  },
+];
+
+const files = [
+  { path: 'AGENTS.md', text: 'Canonical instructions for any agent operating the repository' },
+  { path: 'HANDOFF.md', text: 'What the last session changed and why' },
+  { path: 'CONTRIBUTING.md', text: 'What a useful contribution looks like' },
+  { path: 'scripts/copy-kit.sh', text: 'Creates a working tree from the kit' },
+  { path: 'scripts/forbidden-terms.txt', text: 'Structural bans the gate enforces' },
+];
+---
+
+<Doc
+  title="Reference"
+  description="Where the methods came from, how the repository polices itself, and the design system behind this wiki."
+  eyebrow="Reference"
+  source="README.md"
+>
+  <p>
+    Everything here is background rather than instruction. If you are mid-task, the
+    <a href={`${base}routine/`}>routine</a> and the <a href={`${base}checklists/`}>checklists</a>
+    are the pages you want.
+  </p>
+
+  <div class="cards not-prose">
+    {
+      pages.map((page) => (
+        <a class="card" href={page.href}>
+          <span class="card-title">{page.title}</span>
+          <span class="card-text">{page.text}</span>
+          <code class="card-source">{page.source}</code>
+        </a>
+      ))
+    }
+  </div>
+
+  <h2 id="in-the-repository">Straight to the repository</h2>
+  <ul class="files not-prose">
+    {
+      files.map((file) => (
+        <li>
+          <a href={`${BLOB}${file.path}`} rel="noreferrer">
+            <code>{file.path}</code>
+          </a>
+          <span>{file.text}</span>
+        </li>
+      ))
+    }
+  </ul>
+</Doc>
+
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+  }
+  .card {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-4);
+    background: var(--sheet);
+    border: var(--border-thin) solid var(--rule);
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .card:hover {
+    border-color: var(--accent);
+  }
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--size-md);
+  }
+  .card-text {
+    font-size: var(--size-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+  }
+  .card-source {
+    font-size: var(--size-xs);
+    color: var(--ink-faint);
+  }
+
+  .files {
+    list-style: none;
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    border-top: var(--border-thin) solid var(--rule);
+  }
+  .files li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    justify-content: space-between;
+    padding: var(--space-3) 0;
+    border-bottom: var(--border-thin) solid var(--rule);
+    font-size: var(--size-sm);
+    color: var(--ink-soft);
+  }
+</style>

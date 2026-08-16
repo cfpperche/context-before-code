@@ -1,0 +1,104 @@
+---
+const rows = [
+  { from: 'kit/CLAUDE.md.tmpl · AGENTS · GROK', verb: 'renamed', to: 'CLAUDE.md · AGENTS.md · GROK.md' },
+  { from: 'kit/prompts/ · kit/skills/ · kit/adrs/', verb: 'copied', to: 'prompts/ · skills/ · adrs/' },
+  { from: 'kit/RESEARCH · TECHSPEC · QUALITY-GATE', verb: 'copied', to: 'the files you fill, in order' },
+  { from: 'checklists/before-you-open-the-repo.md', verb: 'copied as', to: 'CHECKLIST.md' },
+  { from: 'kit/README.md', verb: 'replaced', to: 'README.md — fill order + playbook commit' },
+  { from: 'method/ · examples/ · scripts/', verb: 'stays put', to: 'read them in the playbook', stay: true },
+];
+const y = (i: number) => 78 + i * 40;
+---
+
+<svg
+  viewBox="0 0 900 320"
+  role="img"
+  aria-label="copy-kit.sh renames the three agent templates, copies the prompts, skills, ADR template and the blank files you fill, brings the checklist across as CHECKLIST.md, generates a README carrying the fill order and the playbook commit, and leaves the method pages and examples behind in the playbook."
+  class="kit-figure"
+>
+  <defs>
+    <marker id="kit-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" class="arrowhead"></path>
+    </marker>
+  </defs>
+
+  <text class="col" x="380" y="40" text-anchor="end">the playbook</text>
+  <text class="col script" x="450" y="40" text-anchor="middle">copy-kit.sh</text>
+  <text class="col" x="520" y="40" text-anchor="start">your working tree</text>
+  <line class="rule" x1="30" y1="52" x2="870" y2="52"></line>
+
+  {
+    rows.map((row, i) => (
+      <g>
+        <text class={`from${row.stay ? ' muted' : ''}`} x="380" y={y(i)} text-anchor="end">
+          {row.from}
+        </text>
+        <line
+          class={`flow${row.stay ? ' flow-stay' : ''}`}
+          x1="392"
+          y1={y(i) - 4}
+          x2="508"
+          y2={y(i) - 4}
+          marker-end={row.stay ? undefined : 'url(#kit-arrow)'}
+        />
+        <text class="verb" x="450" y={y(i) - 12} text-anchor="middle">
+          {row.verb}
+        </text>
+        <text class={`to${row.stay ? ' muted' : ''}`} x="520" y={y(i)}>
+          {row.to}
+        </text>
+      </g>
+    ))
+  }
+
+  <line class="rule" x1="30" y1="292" x2="870" y2="292"></line>
+  <text class="foot" x="30" y="312">
+    The working tree also gets a git repository: every phase prompt ends in a commit.
+  </text>
+</svg>
+
+<style>
+  .col {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    fill: var(--ink-faint);
+  }
+  .script {
+    fill: var(--accent);
+  }
+  .from,
+  .to {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    fill: var(--ink);
+  }
+  .muted {
+    fill: var(--ink-faint);
+  }
+  .verb {
+    font-family: var(--font-display);
+    font-size: 11px;
+    fill: var(--ink-soft);
+  }
+  .flow {
+    stroke: var(--ink-soft);
+    stroke-width: 1.2;
+  }
+  .flow-stay {
+    stroke: var(--rule-strong);
+    stroke-dasharray: 3 4;
+  }
+  .arrowhead {
+    fill: var(--ink-soft);
+  }
+  .rule {
+    stroke: var(--rule);
+  }
+  .foot {
+    font-family: var(--font-display);
+    font-size: 12px;
+    fill: var(--ink-soft);
+  }
+</style>

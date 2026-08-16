@@ -1,0 +1,377 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import Doc from '../layouts/Doc.astro';
+import Callout from '../components/Callout.astro';
+import Figure from '../components/Figure.astro';
+import RoutineSpine from '../components/diagrams/RoutineSpine.astro';
+
+// Read at build time from the project root (astro build runs inside site/).
+const tokensCss = fs.readFileSync(path.join(process.cwd(), 'src/styles/tokens.css'), 'utf8');
+
+type Token = { name: string; value: string };
+const groups: { label: string; tokens: Token[] }[] = [];
+for (const line of tokensCss.split('\n')) {
+  const group = line.match(/\/\*\s*-+\s*([a-z /()]+?)\s*-+\s*\*\//i);
+  if (group) {
+    groups.push({ label: group[1].trim(), tokens: [] });
+    continue;
+  }
+  const token = line.match(/^\s*(--[a-z0-9-]+):\s*(.+);\s*$/i);
+  if (token && groups.length) {
+    groups.at(-1)!.tokens.push({ name: token[1], value: token[2] });
+  }
+}
+
+const find = (label: string) => groups.find((group) => group.label.startsWith(label))?.tokens ?? [];
+const colours = [...find('ground'), ...find('meaning')];
+const typeTokens = find('type');
+const spaceTokens = find('space');
+const shapeTokens = [...find('shape'), ...find('layout')];
+
+const isColour = (value: string) => /^#|^color-mix/.test(value);
+const fontTokens = typeTokens.filter((token) => token.name.startsWith('--font'));
+const sizeTokens = typeTokens.filter((token) => token.name.startsWith('--size'));
+
+const benchmarks = [
+  {
+    source: 'Primer, GitHub',
+    url: 'https://primer.style/foundations/primitives/typography',
+    taken: 'Type scale (0.75 / 0.875 / 1 / 1.25 / 2 / 2.5rem) and line-height names, extended at the display end for a page that opens with a thesis rather than a table.',
+  },
+  {
+    source: 'Primer size primitives',
+    url: 'https://primer.style/foundations/primitives/size',
+    taken: 'The 4-to-96px spacing rhythm and the radius set (3 / 6 / 9999). Radii are used sparingly — this design leans on hairlines instead of rounded cards.',
+  },
+  {
+    source: 'Butterick, Practical Typography',
+    url: 'https://practicaltypography.com/typography-in-ten-minutes.html',
+    taken: 'Body at 18px with 1.62 leading and a 68-character measure — inside the stated 15–25px, 120–145%, 45–90 character bands.',
+  },
+  {
+    source: 'Diátaxis',
+    url: 'https://diataxis.fr/',
+    taken: 'The information architecture: explanation (the routine), reference (kit, example, bibliography), how-to (checklists) are separated rather than blended into one long README.',
+  },
+];
+
+const principles = [
+  {
+    title: 'Paper, not panels',
+    body: 'The subject is a procedure sheet, so the page is ruled rather than floated. Hairlines and a single sheet-white surface do the work that drop shadows and rounded cards usually do.',
+  },
+  {
+    title: 'Numbers mean sequence',
+    body: 'Numbered markers appear only where the content really is ordered: the eight routine steps and the ADR series. Nothing else gets a counter for decoration.',
+  },
+  {
+    title: 'Colour is semantic first',
+    body: 'Petrol is the accent and carries navigation. Red marks a refusal or a stop condition, green marks a passed gate, amber marks a difference. Nothing is coloured for mood.',
+  },
+  {
+    title: 'A serif for the argument',
+    body: 'This site argues for writing documents before code, so the running text is set in a serif built for long-form reading, with a grotesque for structure and a mono for anything the machine says.',
+  },
+];
+---
+
+<Doc
+  title="Design system"
+  description="The tokens this wiki is built from, the documented systems they were taken from, and the rules its diagrams follow."
+  eyebrow="Reference"
+  source="site/src/styles/tokens.css"
+  headings={[
+    { depth: 2, slug: 'benchmarks', text: 'Benchmarks' },
+    { depth: 2, slug: 'principles', text: 'Principles' },
+    { depth: 2, slug: 'colour', text: 'Colour' },
+    { depth: 2, slug: 'type', text: 'Type' },
+    { depth: 2, slug: 'space', text: 'Space and shape' },
+    { depth: 2, slug: 'components', text: 'Components' },
+    { depth: 2, slug: 'diagrams', text: 'Diagram language' },
+  ]}
+>
+  <p>
+    The wiki has one job: let an engineer who is mid-task find a rule, read it once, and go back
+    to work. That points at a document, not a landing page — so the design is a procedure sheet.
+    Every value below is read out of <code>tokens.css</code> when the site is built, so this page
+    cannot drift from the stylesheet.
+  </p>
+
+  <h2 id="benchmarks">Benchmarks</h2>
+  <p>
+    Scales are borrowed from systems that publish their numbers, not invented. What each one
+    contributed:
+  </p>
+  <table class="data-table">
+    <thead>
+      <tr><th>Source</th><th>What it contributed</th></tr>
+    </thead>
+    <tbody>
+      {
+        benchmarks.map((item) => (
+          <tr>
+            <td>
+              <a href={item.url} rel="noreferrer">{item.source}</a>
+            </td>
+            <td>{item.taken}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  <h2 id="principles">Principles</h2>
+  <div class="principles not-prose">
+    {
+      principles.map((item) => (
+        <div class="principle">
+          <h3>{item.title}</h3>
+          <p>{item.body}</p>
+        </div>
+      ))
+    }
+  </div>
+
+  <Callout kind="note" label="Light only, by request">
+    <p>
+      There is no dark mode and no theme switch. The palette is painted explicitly rather than
+      inherited, so the page holds its own ground on any host.
+    </p>
+  </Callout>
+
+  <h2 id="colour">Colour</h2>
+  <div class="swatches not-prose">
+    {
+      colours.filter((token) => isColour(token.value)).map((token) => (
+        <div class="swatch">
+          <span class="chip" style={`background:${token.value}`}></span>
+          <code>{token.name}</code>
+          <span class="value">{token.value}</span>
+        </div>
+      ))
+    }
+  </div>
+
+  <h2 id="type">Type</h2>
+  <dl class="faces not-prose">
+    {
+      fontTokens.map((token) => (
+        <div class="face">
+          <dt><code>{token.name}</code></dt>
+          <dd style={`font-family:${token.value}`}>
+            <span class="specimen">Context before code</span>
+            <span class="face-stack">{token.value}</span>
+          </dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  <div class="scale not-prose">
+    {
+      sizeTokens.map((token) => (
+        <div class="scale-row">
+          <code>{token.name}</code>
+          <span class="value">{token.value}</span>
+          <span class="scale-sample" style={`font-size:${token.value}`}>
+            Stop condition
+          </span>
+        </div>
+      ))
+    }
+  </div>
+
+  <h2 id="space">Space and shape</h2>
+  <div class="spaces not-prose">
+    {
+      spaceTokens.map((token) => (
+        <div class="space-row">
+          <code>{token.name}</code>
+          <span class="value">{token.value}</span>
+          <span class="bar" style={`width:${token.value}`}></span>
+        </div>
+      ))
+    }
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Token</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      {
+        shapeTokens.map((token) => (
+          <tr>
+            <td><code>{token.name}</code></td>
+            <td><code>{token.value}</code></td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  <h2 id="components">Components</h2>
+  <p>Four pieces carry almost every page.</p>
+
+  <h3>Callouts</h3>
+  <Callout kind="gate"><p>A gate is green when a command says so, not when the agent says so.</p></Callout>
+  <Callout kind="stop"><p>A stop condition is a refusal: you do not continue until it holds.</p></Callout>
+  <Callout kind="note"><p>A note is context that would otherwise sit in a footnote nobody reads.</p></Callout>
+
+  <h3>Source line</h3>
+  <p>
+    Every wiki page prints the repository file it was rendered from, directly under the title.
+    The site keeps no second copy of any rule, and the reader can always go and check.
+  </p>
+
+  <h3>Data tables</h3>
+  <p>
+    Tables are set in the display face with monospaced uppercase headers and tabular figures, so
+    a contract table reads as data rather than as prose.
+  </p>
+
+  <h2 id="diagrams">Diagram language</h2>
+  <p>
+    Diagrams are hand-authored inline SVG — no diagramming library, no runtime, no images. Each
+    one earns its place by showing a mechanism the prose would have to spell out: an order, a
+    priority ladder, a set of files that move.
+  </p>
+  <ul>
+    <li>Hairline strokes and squared corners, matching the page</li>
+    <li>Labels in the mono face at 10.5–12.5px; sentences go in the caption, not the drawing</li>
+    <li>Arrowheads are markers; dashed strokes mean "does not happen" or "goes back"</li>
+    <li>Semantic colour only: red for a refusal, green for a pass, petrol for the accented path</li>
+    <li>Every figure carries a caption and an <code>aria-label</code> saying the same thing</li>
+  </ul>
+
+  <Figure caption="The house style: a spine, numbered stations, a dashed gate, and brackets that group the phases. Nothing is drawn that the caption alone could carry.">
+    <RoutineSpine />
+  </Figure>
+</Doc>
+
+<style>
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+  .principle {
+    border-top: var(--border-thick) solid var(--ink);
+    padding-top: var(--space-3);
+  }
+  .principle h3 {
+    font-family: var(--font-display);
+    font-size: var(--size-md);
+    font-weight: 600;
+  }
+  .principle p {
+    margin-top: var(--space-2);
+    font-size: var(--size-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+  }
+
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+  .swatch {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    grid-template-rows: auto auto;
+    column-gap: var(--space-3);
+    align-items: center;
+    border: var(--border-thin) solid var(--rule);
+    background: var(--sheet);
+    padding: var(--space-2);
+  }
+  .chip {
+    grid-row: span 2;
+    height: 2.5rem;
+    border: var(--border-thin) solid var(--rule-strong);
+  }
+  .swatch code {
+    font-size: var(--size-xs);
+  }
+  .value {
+    font-family: var(--font-mono);
+    font-size: var(--size-xs);
+    color: var(--ink-faint);
+  }
+
+  .faces {
+    margin: var(--space-4) 0 0;
+    display: grid;
+    gap: var(--space-3);
+  }
+  .face {
+    display: grid;
+    gap: var(--space-1);
+    border-top: var(--border-thin) solid var(--rule);
+    padding-top: var(--space-3);
+  }
+  .face dt code {
+    font-size: var(--size-xs);
+    color: var(--ink-soft);
+  }
+  .face dd {
+    margin: 0;
+    display: grid;
+    gap: var(--space-1);
+  }
+  .specimen {
+    font-size: var(--size-2xl);
+    line-height: var(--leading-tight);
+  }
+  .face-stack {
+    font-family: var(--font-mono);
+    font-size: var(--size-xs);
+    color: var(--ink-faint);
+  }
+
+  .scale {
+    margin-top: var(--space-5);
+    display: grid;
+    border-top: var(--border-thin) solid var(--rule);
+  }
+  .scale-row {
+    display: grid;
+    grid-template-columns: 6rem 4.5rem 1fr;
+    gap: var(--space-3);
+    align-items: baseline;
+    padding: var(--space-2) 0;
+    border-bottom: var(--border-thin) solid var(--rule);
+  }
+  .scale-row code {
+    font-size: var(--size-xs);
+  }
+  .scale-sample {
+    font-family: var(--font-display);
+    line-height: var(--leading-tight);
+  }
+
+  .spaces {
+    margin-top: var(--space-4);
+    display: grid;
+    gap: var(--space-1);
+  }
+  .space-row {
+    display: grid;
+    grid-template-columns: 6rem 4rem 1fr;
+    gap: var(--space-3);
+    align-items: center;
+  }
+  .space-row code {
+    font-size: var(--size-xs);
+  }
+  .bar {
+    height: 0.6rem;
+    background: var(--accent-wash);
+    border: var(--border-thin) solid var(--accent);
+    display: block;
+  }
+</style>

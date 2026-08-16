@@ -1,0 +1,146 @@
+---
+const decisions = [
+  { x: 60, q: 'SKU on both sides?', no: 'no', yes: 'yes' },
+  { x: 300, q: 'price_cents equal?', no: 'no', yes: 'yes' },
+  { x: 540, q: 'name / category equal?', no: 'no', yes: 'yes' },
+];
+---
+
+<svg
+  viewBox="0 0 900 300"
+  role="img"
+  aria-label="Compare status is decided in order: a SKU missing on one side is missing_left or missing_right; otherwise a price difference is price_diff; otherwise a name or category difference is field_diff; otherwise match. The first test that fires wins, so a row that differs in price and name reports only price_diff."
+  class="cmp-figure"
+>
+  <defs>
+    <marker id="cmp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" class="arrowhead"></path>
+    </marker>
+  </defs>
+
+  <text class="axis" x="60" y="30">tested in this order — the first hit wins</text>
+
+  {
+    decisions.map((step, i) => (
+      <g>
+        <rect class="test" x={step.x} y="52" width="180" height="52"></rect>
+        <text class="test-label" x={step.x + 90} y="83" text-anchor="middle">
+          {step.q}
+        </text>
+        {i < decisions.length - 1 && (
+          <line
+            class="flow"
+            x1={step.x + 180}
+            y1="78"
+            x2={step.x + 218}
+            y2="78"
+            marker-end="url(#cmp-arrow)"
+          />
+        )}
+        <text class="edge" x={step.x + 186} y="70">
+          {i < decisions.length - 1 ? 'yes' : ''}
+        </text>
+        <line class="flow" x1={step.x + 90} y1="104" x2={step.x + 90} y2="158" marker-end="url(#cmp-arrow)"></line>
+        <text class="edge" x={step.x + 98} y="132">no</text>
+      </g>
+    ))
+  }
+
+  <g>
+    <rect class="status status-missing" x="90" y="160" width="120" height="46"></rect>
+    <text class="status-label" x="150" y="182" text-anchor="middle">
+      <tspan x="150">missing_left</tspan>
+      <tspan x="150" dy="15">missing_right</tspan>
+    </text>
+    <text class="status-note" x="150" y="226" text-anchor="middle">whichever side lacks it</text>
+  </g>
+
+  <g>
+    <rect class="status status-diff" x="330" y="160" width="120" height="46"></rect>
+    <text class="status-label" x="390" y="189" text-anchor="middle">price_diff</text>
+    <text class="status-note" x="390" y="226" text-anchor="middle">the buyer's question</text>
+  </g>
+
+  <g>
+    <rect class="status status-diff" x="570" y="160" width="120" height="46"></rect>
+    <text class="status-label" x="630" y="189" text-anchor="middle">field_diff</text>
+    <text class="status-note" x="630" y="226" text-anchor="middle">name or category</text>
+  </g>
+
+  <line class="flow" x1="720" y1="78" x2="790" y2="78" marker-end="url(#cmp-arrow)"></line>
+  <text class="edge" x="734" y="70">yes</text>
+  <rect class="status status-match" x="792" y="55" width="88" height="46"></rect>
+  <text class="status-label" x="836" y="84" text-anchor="middle">match</text>
+
+  <line class="rule" x1="30" y1="256" x2="880" y2="256"></line>
+  <text class="foot" x="30" y="278">
+    A row that differs in price and in name reports price_diff only. The detail loss is written down in ADR 003.
+  </text>
+</svg>
+
+<style>
+  .test {
+    fill: var(--sheet);
+    stroke: var(--ink);
+    stroke-width: 1.1;
+  }
+  .test-label {
+    font-family: var(--font-display);
+    font-size: 12.5px;
+    fill: var(--ink);
+  }
+  .status {
+    stroke-width: 1.1;
+  }
+  .status-missing {
+    fill: var(--stop-wash);
+    stroke: var(--stop);
+  }
+  .status-diff {
+    fill: var(--hold-wash);
+    stroke: var(--hold);
+  }
+  .status-match {
+    fill: var(--pass-wash);
+    stroke: var(--pass);
+  }
+  .status-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    fill: var(--ink);
+  }
+  .status-note {
+    font-family: var(--font-display);
+    font-size: 11px;
+    fill: var(--ink-soft);
+  }
+  .flow {
+    fill: none;
+    stroke: var(--ink-soft);
+    stroke-width: 1.3;
+  }
+  .arrowhead {
+    fill: var(--ink-soft);
+  }
+  .edge {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    fill: var(--ink-soft);
+  }
+  .axis {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    fill: var(--ink-faint);
+  }
+  .rule {
+    stroke: var(--rule);
+  }
+  .foot {
+    font-family: var(--font-display);
+    font-size: 12px;
+    fill: var(--ink-soft);
+  }
+</style>

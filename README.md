@@ -2,6 +2,9 @@
 
 A working routine for small greenfield work with an AI coding agent.
 
+**Wiki: <https://cfpperche.github.io/context-before-code/>** — the same files,
+rendered, with the routine diagrammed. Built from `site/`.
+
 Write context, research, and a spec before any implementation prompt. Use it
 for a take-home, a spike, or a one-day service. The routine is the product.
 The kit is just the files that make the routine executable.
@@ -57,6 +60,7 @@ kit/         blank files you copy (agent templates are *.md.tmpl)
 examples/    one filled kit for a fictional Catalog Compare API in Go
 checklists/  before-you-open-the-repo, evaluator criteria, what not to build
 scripts/     copy-kit.sh, gate.sh
+site/        the published wiki (Astro); renders the files above, adds no rules
 ```
 
 Agents that operate *this* repository read [`AGENTS.md`](AGENTS.md).

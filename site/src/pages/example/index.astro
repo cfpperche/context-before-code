@@ -1,0 +1,147 @@
+---
+import { getCollection, render } from 'astro:content';
+import Doc from '../../layouts/Doc.astro';
+import Figure from '../../components/Figure.astro';
+import Callout from '../../components/Callout.astro';
+import CompareDecision from '../../components/diagrams/CompareDecision.astro';
+import MiddlewareOrder from '../../components/diagrams/MiddlewareOrder.astro';
+import { headingOf } from '../../lib/content';
+
+const base = import.meta.env.BASE_URL;
+const packet = await getCollection('packet');
+const readme = packet.find((entry) => entry.id.toLowerCase() === 'readme');
+const rendered = readme ? await render(readme) : null;
+
+const docs = packet
+  .filter((entry) => entry.id.toLowerCase() !== 'readme')
+  .sort((a, b) => a.id.localeCompare(b.id))
+  .map((entry) => ({
+    href: `${base}example/${entry.id}/`,
+    title: headingOf(entry.body, entry.id),
+    id: entry.id,
+  }));
+
+const adrs = (await getCollection('adrs'))
+  .sort((a, b) => a.id.localeCompare(b.id))
+  .map((entry) => {
+    const heading = headingOf(entry.body, entry.id);
+    return {
+      href: `${base}example/adr/${entry.id}/`,
+      number: entry.id.slice(0, 3),
+      title: heading.replace(/^ADR \d+:\s*/, ''),
+    };
+  });
+---
+
+<Doc
+  title="Worked example"
+  description="A filled kit for a fictional Catalog Compare brief in Go. Documentation only — there is no service in this folder, on purpose."
+  eyebrow="Reference · filled packet"
+  source="examples/catalog-compare-api/README.md"
+  headings={[
+    { depth: 2, slug: 'the-packet', text: 'The packet' },
+    { depth: 2, slug: 'two-decisions', text: 'Two decisions worth the drawing' },
+    { depth: 2, slug: 'decisions', text: 'Decisions on record' },
+  ]}
+>
+  {rendered && <rendered.Content />}
+
+  <Callout kind="note" label="Why there is no code">
+    <p>
+      The packet is what exists <b>before</b> the first <code>func Test</code>. Turning this
+      folder into an application is the one thing the repository's rules forbid: implementation
+      belongs in a working tree created by <code>copy-kit.sh</code>.
+    </p>
+  </Callout>
+
+  <h2 id="the-packet">The packet</h2>
+  <ul class="doc-list not-prose">
+    {
+      docs.map((doc) => (
+        <li>
+          <a href={doc.href}>
+            <span class="doc-title">{doc.title}</span>
+            <code class="doc-source">examples/catalog-compare-api/{doc.id.toUpperCase()}.md</code>
+          </a>
+        </li>
+      ))
+    }
+    <li>
+      <a href={`${base}example/skills/`}>
+        <span class="doc-title">Skills (filled, Go)</span>
+        <code class="doc-source">examples/catalog-compare-api/skills/</code>
+      </a>
+    </li>
+  </ul>
+
+  <h2 id="two-decisions">Two decisions worth the drawing</h2>
+  <p>
+    Most of the spec is a table. Two parts of it are a mechanism, and a mechanism is worth a
+    picture: how a compare row gets its status, and which layer of the server writes which
+    response.
+  </p>
+
+  <Figure caption="Compare status is a priority ladder, not a set. The first test that fires wins, which is why a row differing in price and name reports price_diff and nothing else.">
+    <CompareDecision />
+  </Figure>
+
+  <Figure caption="Middleware order decides whether an error response can carry its request id. Request ID sits outermost so the 500 written by the recover layer still has one, and the timeout's fixed 503 body can lean on the response header instead.">
+    <MiddlewareOrder />
+  </Figure>
+
+  <h2 id="decisions">Decisions on record</h2>
+  <ol class="adr-list not-prose">
+    {
+      adrs.map((adr) => (
+        <li>
+          <a href={adr.href}>
+            <span class="adr-num">{adr.number}</span>
+            <span class="adr-title">{adr.title}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</Doc>
+
+<style>
+  .doc-list,
+  .adr-list {
+    list-style: none;
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    border-top: var(--border-thin) solid var(--rule);
+  }
+  .doc-list a,
+  .adr-list a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: var(--border-thin) solid var(--rule);
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .doc-list a:hover,
+  .adr-list a:hover {
+    background: var(--sheet);
+  }
+  .doc-title,
+  .adr-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--size-md);
+  }
+  .doc-source {
+    font-size: var(--size-xs);
+    color: var(--ink-faint);
+    margin-left: auto;
+  }
+  .adr-num {
+    font-family: var(--font-mono);
+    font-size: var(--size-sm);
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

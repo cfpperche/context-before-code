@@ -1,0 +1,87 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import Doc from '../../layouts/Doc.astro';
+import Callout from '../../components/Callout.astro';
+import { numberedHeading, sectionOf, summaryOf } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const entries = (await getCollection('method')).sort((a, b) => a.id.localeCompare(b.id));
+  return entries.map((entry, index) => ({
+    params: { id: entry.id },
+    props: {
+      entry,
+      prev: entries[index - 1] ?? null,
+      next: entries[index + 1] ?? null,
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+const base = import.meta.env.BASE_URL;
+const { entry, prev, next } = Astro.props;
+const { Content, headings } = await render(entry);
+const { number, title } = numberedHeading(entry.body);
+const stop = sectionOf(entry.body, 'Stop condition');
+const description = summaryOf(entry.body, `Step ${number} of the context-before-code routine.`);
+
+const link = (item: typeof prev) => {
+  if (!item) return null;
+  const heading = numberedHeading(item.body);
+  return {
+    href: `${base}routine/${item.id}/`,
+    label: `${heading.number ?? ''}. ${heading.title}`.replace(/^\.\s/, ''),
+  };
+};
+---
+
+<Doc
+  title={title}
+  description={description}
+  eyebrow={`Routine · step ${number}`}
+  marker={number}
+  source={`method/${entry.id}.md`}
+  headings={headings}
+  prev={link(prev)}
+  next={link(next)}
+>
+  <Content />
+
+  <Fragment slot="rail">
+    {
+      stop && (
+        <div class="rail-stop">
+          <p class="eyebrow">Stop condition</p>
+          <p>{stop}</p>
+        </div>
+      )
+    }
+    <div class="rail-note">
+      <p class="eyebrow">You run the gate</p>
+      <p>The agent does not tick its own boxes.</p>
+    </div>
+  </Fragment>
+</Doc>
+
+<style>
+  .rail-stop,
+  .rail-note {
+    display: grid;
+    gap: var(--space-2);
+    font-family: var(--font-display);
+    font-size: var(--size-sm);
+    line-height: var(--leading-normal);
+    color: var(--ink-soft);
+    border-left: var(--border-thick) solid var(--pass);
+    padding-left: var(--space-3);
+  }
+  .rail-stop .eyebrow {
+    color: var(--pass);
+  }
+  .rail-note {
+    border-left-color: var(--rule-strong);
+  }
+  .rail-stop p,
+  .rail-note p {
+    margin: 0;
+  }
+</style>

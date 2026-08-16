@@ -31,6 +31,12 @@ Read `CONTRIBUTING.md` before you change shape.
    an app.
 6. One source of truth per fact. Do not copy the same rule into README,
    method, and a skill.
+7. `site/` is the published wiki, not an exception to rule 1. It is a static
+   Astro site that **renders** `method/`, `kit/`, `examples/` and
+   `checklists/` through content collections; it must not restate a rule in
+   its own words. Prose written directly in a page is limited to framing,
+   captions, and the design notes. If a fact belongs to the routine, it lives
+   in the repository markdown and the site reads it.
 
 ## How to work
 
@@ -43,6 +49,20 @@ Read `CONTRIBUTING.md` before you change shape.
 - Do not push to `main` unless the owner asked for a publish. Prefer a branch
   and a pull request.
 - Do not commit secrets.
+
+## The wiki
+
+```sh
+cd site && npm install && npm run dev     # local
+npm run build                             # dist/ + the Pagefind index
+```
+
+Published to GitHub Pages from `.github/workflows/deploy.yml` on every push to
+`main`. Diagrams are hand-authored inline SVG components under
+`site/src/components/diagrams/`; there is no diagramming library and no
+client-side rendering. Design tokens and the benchmark notes live in
+`site/src/styles/tokens.css` and the `/design/` page, which reads that file at
+build time.
 
 ## Skills
 

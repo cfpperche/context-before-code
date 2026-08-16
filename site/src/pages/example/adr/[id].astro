@@ -1,0 +1,85 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import Doc from '../../../layouts/Doc.astro';
+import { headingOf } from '../../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const entries = (await getCollection('adrs')).sort((a, b) => a.id.localeCompare(b.id));
+  return entries.map((entry, index) => ({
+    params: { id: entry.id },
+    props: { entry, prev: entries[index - 1] ?? null, next: entries[index + 1] ?? null },
+  }));
+}) satisfies GetStaticPaths;
+
+const base = import.meta.env.BASE_URL;
+const { entry, prev, next } = Astro.props;
+const { Content, headings } = await render(entry);
+const heading = headingOf(entry.body, entry.id);
+const title = heading.replace(/^ADR \d+:\s*/, '');
+const number = entry.id.slice(0, 3);
+
+const status = entry.body?.match(/^- Status:\s*(.+)$/m)?.[1]?.trim() ?? '';
+const date = entry.body?.match(/^- Date:\s*(.+)$/m)?.[1]?.trim() ?? '';
+const phase = entry.body?.match(/^- Phase:\s*(.+)$/m)?.[1]?.trim() ?? '';
+
+const link = (item: typeof prev) =>
+  item
+    ? {
+        href: `${base}example/adr/${item.id}/`,
+        label: headingOf(item.body, item.id).replace(/^ADR \d+:\s*/, ''),
+      }
+    : null;
+---
+
+<Doc
+  title={title}
+  description={`Architecture decision record ${number} from the Catalog Compare packet.`}
+  eyebrow={`Decision record ${number}`}
+  marker={number}
+  source={`examples/catalog-compare-api/adrs/${entry.id}.md`}
+  headings={headings}
+  prev={link(prev)}
+  next={link(next)}
+>
+  <Content />
+
+  <Fragment slot="rail">
+    <dl class="meta">
+      {status && (
+        <>
+          <dt class="eyebrow">Status</dt>
+          <dd>{status}</dd>
+        </>
+      )}
+      {date && (
+        <>
+          <dt class="eyebrow">Date</dt>
+          <dd>{date}</dd>
+        </>
+      )}
+      {phase && (
+        <>
+          <dt class="eyebrow">Phase</dt>
+          <dd>{phase}</dd>
+        </>
+      )}
+    </dl>
+  </Fragment>
+</Doc>
+
+<style>
+  .meta {
+    margin: 0;
+    display: grid;
+    gap: var(--space-1);
+    border-left: var(--border-thick) solid var(--accent);
+    padding-left: var(--space-3);
+  }
+  .meta dd {
+    margin: 0 0 var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--size-sm);
+    color: var(--ink);
+  }
+</style>

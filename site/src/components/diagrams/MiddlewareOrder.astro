@@ -1,0 +1,145 @@
+---
+const bands = [
+  { label: 'request ID', note: 'sets header + context', tone: 'accent' },
+  { label: 'recover', note: 'panic → 500', tone: 'plain' },
+  { label: 'access log', note: 'method, path, status, ms', tone: 'plain' },
+  { label: 'timeout 3s', note: 'TimeoutHandler', tone: 'plain' },
+  { label: 'mux + handlers', note: 'the contract', tone: 'plain' },
+];
+const y = (i: number) => 60 + i * 64;
+
+const notes = [
+  {
+    band: 1,
+    code: '500 internal',
+    text: 'carries a request_id — set one layer further out',
+  },
+  {
+    band: 3,
+    code: '503 timeout',
+    text: 'fixed body; the id rides the X-Request-ID header',
+  },
+  {
+    band: 4,
+    code: '200 · 400 · 404 · 405 · 413 · 415',
+    text: 'router errors a bare ServeMux answers in plain text',
+  },
+];
+---
+
+<svg
+  viewBox="0 0 880 420"
+  role="img"
+  aria-label="Middleware order: request ID wraps recover, which wraps the access log, the three second timeout, and the mux. Because the request ID layer is outermost, the 500 envelope written by recover still carries a request id; the timeout writes a fixed 503 envelope and passes the id in a header."
+  class="mw-figure"
+>
+  <defs>
+    <marker id="mw-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" class="arrowhead"></path>
+    </marker>
+  </defs>
+
+  <line class="flow" x1="58" y1="44" x2="58" y2={y(4) + 52} marker-end="url(#mw-arrow)"></line>
+  <text class="axis" x="58" y="34" text-anchor="middle">request</text>
+
+  {
+    bands.map((band, i) => (
+      <g>
+        <line class="tie" x1="58" y1={y(i) + 26} x2="90" y2={y(i) + 26}></line>
+        <rect class={`band band-${band.tone}`} x="90" y={y(i)} width="330" height="52"></rect>
+        <text class="band-label" x="106" y={y(i) + 31}>
+          {band.label}
+        </text>
+        <text class="band-note" x="404" y={y(i) + 31} text-anchor="end">
+          {band.note}
+        </text>
+      </g>
+    ))
+  }
+
+  {
+    notes.map((note) => (
+      <g>
+        <polyline
+          class="flow"
+          points={`420,${y(note.band) + 26} 470,${y(note.band) + 26}`}
+          marker-end="url(#mw-arrow)"
+        />
+        <text class="out-code" x="482" y={y(note.band) + 20}>
+          {note.code}
+        </text>
+        <text class="out-text" x="482" y={y(note.band) + 38}>
+          {note.text}
+        </text>
+      </g>
+    ))
+  }
+
+  <line class="rule" x1="90" y1="392" x2="850" y2="392"></line>
+  <text class="warn" x="90" y="412">
+    Put request ID inside recover and the 500 envelope goes out with an empty request_id.
+  </text>
+</svg>
+
+<style>
+  .band {
+    stroke: var(--ink);
+    stroke-width: 1.1;
+    fill: var(--sheet);
+  }
+  .band-accent {
+    fill: var(--accent-wash);
+    stroke: var(--accent);
+  }
+  .band-label {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    fill: var(--ink);
+  }
+  .band-note {
+    font-family: var(--font-display);
+    font-size: 11.5px;
+    fill: var(--ink-soft);
+  }
+  .flow {
+    fill: none;
+    stroke: var(--ink-soft);
+    stroke-width: 1.3;
+  }
+  .arrowhead {
+    fill: var(--ink-soft);
+  }
+  .tie {
+    stroke: var(--rule-strong);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+  }
+  .axis {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    fill: var(--ink-faint);
+  }
+  .out-code {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: var(--accent);
+  }
+  .out-text {
+    font-family: var(--font-display);
+    font-size: 11.5px;
+    fill: var(--ink-soft);
+  }
+  .rule {
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+  .warn {
+    font-family: var(--font-display);
+    font-size: 12px;
+    fill: var(--stop);
+  }
+</style>

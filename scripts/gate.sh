@@ -43,6 +43,13 @@ required=(
   examples/catalog-compare-api/TECHSPEC.md
   examples/catalog-compare-api/QUALITY-GATE.md
   scripts/copy-kit.sh
+  scripts/forbidden-terms.txt
+  site/package.json
+  site/package-lock.json
+  site/astro.config.mjs
+  site/src/content.config.ts
+  site/src/styles/tokens.css
+  .github/workflows/deploy.yml
 )
 
 # The routine is the product: every step page, prompt, and skill is required.
@@ -124,7 +131,8 @@ while IFS= read -r -d '' file; do
       broken=1
     fi
   done < <(grep -o '](\([^)]*\))' "${file}" 2>/dev/null | sed 's/^](//; s/)$//')
-done < <(find . -path ./.git -prune -o \( -name '*.md' -o -name '*.tmpl' \) -print0)
+done < <(find . \( -path ./.git -o -path '*/node_modules' -o -path '*/dist' -o -path '*/.astro' \) -prune \
+  -o \( -name '*.md' -o -name '*.tmpl' \) -print0)
 if [[ "${broken}" -eq 0 ]]; then ok "internal markdown links resolve"; fi
 
 # ---------------------------------------------------------------- forbidden
@@ -138,7 +146,8 @@ search() {
   if command -v rg >/dev/null 2>&1; then
     rg -n --hidden -g '!.git' -g '!LICENSE' -g '!scripts/forbidden-terms*' -i -e "${pattern}" . || true
   else
-    grep -RIni --exclude-dir=.git --exclude=LICENSE --exclude='forbidden-terms*' -e "${pattern}" . || true
+    grep -RIni --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=dist \
+      --exclude-dir=.astro --exclude=LICENSE --exclude='forbidden-terms*' -e "${pattern}" . || true
   fi
 }
 

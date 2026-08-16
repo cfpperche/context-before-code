@@ -1,0 +1,95 @@
+---
+import { getCollection } from 'astro:content';
+import Doc from '../../layouts/Doc.astro';
+import { headingOf, summaryOf } from '../../lib/content';
+
+const base = import.meta.env.BASE_URL;
+const lists = (await getCollection('checklists'))
+  .sort((a, b) => a.id.localeCompare(b.id))
+  .map((entry) => ({
+    href: `${base}checklists/${entry.id}/`,
+    title: headingOf(entry.body, entry.id),
+    summary: summaryOf(entry.body, ''),
+    source: `checklists/${entry.id}.md`,
+    boxes: (entry.body?.match(/^- \[ \]/gm) ?? []).length,
+    rows: (entry.body?.match(/^\|/gm) ?? []).length,
+  }));
+---
+
+<Doc
+  title="Checklists"
+  description="Three lists you tick by hand: before opening the solution repository, what the evaluator actually scores, and what not to build."
+  eyebrow="How-to"
+  source="checklists/"
+>
+  <p>
+    A checklist is the cheapest gate in the routine. These three are meant to be ticked, not
+    read: the first before you open the module, the second while you copy the brief into
+    <code>CLAUDE.md</code>, the third every time a "serious project" instinct shows up.
+  </p>
+
+  <ul class="list not-prose">
+    {
+      lists.map((item) => (
+        <li>
+          <a href={item.href}>
+            <span class="list-main">
+              <span class="list-title">{item.title}</span>
+              {item.summary && <span class="list-summary">{item.summary}</span>}
+            </span>
+            <span class="list-meta">
+              {item.boxes > 0 && <span>{item.boxes} boxes</span>}
+              <code>{item.source}</code>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</Doc>
+
+<style>
+  .list {
+    list-style: none;
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    border-top: var(--border-thin) solid var(--rule);
+  }
+  .list a {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    justify-content: space-between;
+    align-items: baseline;
+    padding: var(--space-4) 0;
+    border-bottom: var(--border-thin) solid var(--rule);
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .list a:hover {
+    background: var(--sheet);
+  }
+  .list-main {
+    display: grid;
+    gap: var(--space-1);
+    max-width: 42ch;
+  }
+  .list-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--size-md);
+  }
+  .list-summary {
+    font-size: var(--size-sm);
+    color: var(--ink-soft);
+    line-height: var(--leading-normal);
+  }
+  .list-meta {
+    display: grid;
+    gap: var(--space-1);
+    justify-items: end;
+    font-family: var(--font-mono);
+    font-size: var(--size-xs);
+    color: var(--ink-faint);
+  }
+</style>

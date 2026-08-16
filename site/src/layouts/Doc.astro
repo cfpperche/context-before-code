@@ -1,0 +1,244 @@
+---
+import Base from './Base.astro';
+import SideIndex from '../components/SideIndex.astro';
+import { BLOB } from '../lib/content';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  eyebrow?: string;
+  marker?: string | null;
+  source?: string;
+  headings?: Heading[];
+  prev?: { href: string; label: string } | null;
+  next?: { href: string; label: string } | null;
+}
+
+const { title, description, eyebrow, marker, source, headings = [], prev, next } = Astro.props;
+const toc = headings.filter((heading) => heading.depth === 2);
+---
+
+<Base title={title} description={description}>
+  <SideIndex />
+
+  <main class="sheet" id="content">
+    <header class="sheet-head">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h1 class="sheet-title">
+        {marker && <span class="marker" aria-hidden="true">{marker}</span>}
+        <span>{title}</span>
+      </h1>
+      {description && <p class="sheet-lede">{description}</p>}
+      {
+        source && (
+          <p class="sheet-source">
+            <span class="eyebrow">Source</span>
+            <a href={`${BLOB}${source}`} rel="noreferrer">
+              <code>{source}</code>
+            </a>
+          </p>
+        )
+      }
+    </header>
+
+    <article class="prose" data-pagefind-body>
+      <slot />
+    </article>
+
+    {
+      (prev || next) && (
+        <nav class="pager" aria-label="Previous and next">
+          {prev ? (
+            <a class="pager-link" href={prev.href} rel="prev">
+              <span class="eyebrow">Previous</span>
+              <span>{prev.label}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+          {next && (
+            <a class="pager-link pager-next" href={next.href} rel="next">
+              <span class="eyebrow">Next</span>
+              <span>{next.label}</span>
+            </a>
+          )}
+        </nav>
+      )
+    }
+  </main>
+
+  <aside class="rail" aria-label="Page tools">
+    <div class="rail-inner">
+      {
+        toc.length > 1 && (
+          <nav class="toc" aria-label="On this page">
+            <h2 class="eyebrow">On this page</h2>
+            <ul>
+              {toc.map((heading) => (
+                <li>
+                  <a href={`#${heading.slug}`}>{heading.text}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+      <slot name="rail" />
+    </div>
+  </aside>
+</Base>
+
+<style>
+  :global(.shell) {
+    display: grid;
+    grid-template-columns: var(--index-width) minmax(0, 1fr) var(--rail-width);
+    grid-template-areas: 'index sheet rail';
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  /* The source file's own h1 is the sheet title; do not print it twice. */
+  .sheet :global(.prose > h1:first-child) {
+    display: none;
+  }
+
+  .sheet {
+    grid-area: sheet;
+    min-width: 0;
+    padding-block: var(--space-7) var(--space-8);
+    max-width: var(--measure);
+  }
+
+  .sheet-head {
+    display: grid;
+    gap: var(--space-3);
+    padding-bottom: var(--space-5);
+    margin-bottom: var(--space-6);
+    border-bottom: var(--border-thick) solid var(--ink);
+  }
+
+  .sheet-title {
+    font-size: var(--size-3xl);
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+  }
+
+  .marker {
+    font-family: var(--font-mono);
+    font-size: var(--size-xl);
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    border: var(--border-thin) solid var(--rule-strong);
+    background: var(--sheet);
+    padding: 0 0.32em;
+    flex: none;
+  }
+
+  .sheet-lede {
+    font-size: var(--size-lg);
+    color: var(--ink-soft);
+    max-width: 60ch;
+  }
+
+  .sheet-source {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-size: var(--size-sm);
+  }
+  .sheet-source code {
+    color: var(--ink-soft);
+  }
+
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+    padding-top: var(--space-5);
+    border-top: var(--border-thin) solid var(--rule);
+  }
+
+  .pager-link {
+    display: grid;
+    gap: var(--space-1);
+    font-family: var(--font-display);
+    font-size: var(--size-md);
+    text-decoration: none;
+    color: var(--ink);
+    border: var(--border-thin) solid var(--rule);
+    background: var(--sheet);
+    padding: var(--space-3) var(--space-4);
+  }
+  .pager-link:hover {
+    border-color: var(--accent);
+  }
+  .pager-next {
+    text-align: right;
+  }
+
+  .rail {
+    grid-area: rail;
+    min-width: 0;
+  }
+
+  .rail-inner {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-5));
+    display: grid;
+    gap: var(--space-5);
+    padding-block: var(--space-7);
+  }
+
+  .toc ul {
+    list-style: none;
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+    border-left: var(--border-thin) solid var(--rule);
+  }
+  .toc a {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--size-sm);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding-left: var(--space-3);
+    margin-left: -1px;
+    border-left: var(--border-thick) solid transparent;
+  }
+  .toc a:hover {
+    color: var(--ink);
+    border-left-color: var(--rule-strong);
+  }
+
+  @media (max-width: 76rem) {
+    :global(.shell) {
+      grid-template-columns: var(--index-width) minmax(0, 1fr);
+      grid-template-areas: 'index sheet';
+    }
+    .rail {
+      display: none;
+    }
+  }
+
+  @media (max-width: 68rem) {
+    :global(.shell) {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'index' 'sheet';
+      gap: var(--space-4);
+    }
+    .sheet {
+      padding-block: var(--space-5) var(--space-7);
+    }
+  }
+</style>

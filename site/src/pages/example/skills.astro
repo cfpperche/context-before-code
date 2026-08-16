@@ -1,0 +1,91 @@
+---
+import { getCollection, render } from 'astro:content';
+import Doc from '../../layouts/Doc.astro';
+import Callout from '../../components/Callout.astro';
+import { skillMeta } from '../../lib/content';
+
+const entries = (await getCollection('packetSkills')).sort((a, b) => a.id.localeCompare(b.id));
+const skills = await Promise.all(
+  entries.map(async (entry) => ({
+    slug: entry.id.split('/')[0],
+    ...skillMeta(entry),
+    source: `examples/catalog-compare-api/skills/${entry.id}`,
+    Content: (await render(entry)).Content,
+  }))
+);
+---
+
+<Doc
+  title="Filled skills (Go)"
+  description="The kit's seven skill shells after a crash course in Go: the law each implementation phase is held to."
+  eyebrow="Worked example"
+  source="examples/catalog-compare-api/skills/"
+  headings={skills.map((skill) => ({ depth: 2, slug: `skill-${skill.slug}`, text: skill.title }))}
+>
+  <p>
+    A skill is not a style guide. It is the set of rejections for one phase, written after the
+    crash course, in the language the agent will actually emit. Copy the idea, not the text, if
+    your language is not Go.
+  </p>
+
+  <Callout kind="stop">
+    <p>
+      Every <code>TODO</code> left in a skill is a rule the agent gets to invent for you. The
+      repository gate fails if a filled example still carries one.
+    </p>
+  </Callout>
+
+  {
+    skills.map((skill) => (
+      <section class="skill" id={`skill-${skill.slug}`}>
+        <h2>{skill.title}</h2>
+        <p class="skill-desc">{skill.description}</p>
+        <div class="skill-body">
+          <skill.Content />
+        </div>
+        <p class="skill-source">
+          <code>{skill.source}</code>
+        </p>
+      </section>
+    ))
+  }
+</Doc>
+
+<style>
+  .skill {
+    margin-top: var(--space-7);
+  }
+  .skill h2 {
+    font-family: var(--font-display);
+    font-size: var(--size-xl);
+    border-top: var(--border-thin) solid var(--rule);
+    padding-top: var(--space-4);
+  }
+  .skill-desc {
+    font-size: var(--size-md);
+    color: var(--ink-soft);
+    margin-top: var(--space-2);
+  }
+  .skill-body :global(h1) {
+    display: none;
+  }
+  .skill-body :global(h2) {
+    font-family: var(--font-mono);
+    font-size: var(--size-xs);
+    font-weight: 600;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border: 0;
+    padding-top: 0;
+    margin-top: var(--space-5);
+  }
+  .skill-body :global(* + *) {
+    margin-top: var(--space-3);
+  }
+  .skill-source {
+    margin-top: var(--space-3);
+    font-size: var(--size-xs);
+    color: var(--ink-faint);
+  }
+</style>

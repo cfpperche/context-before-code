@@ -1,0 +1,281 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import { getCollection, render } from 'astro:content';
+import Doc from '../../layouts/Doc.astro';
+import Figure from '../../components/Figure.astro';
+import Callout from '../../components/Callout.astro';
+import KitFlow from '../../components/diagrams/KitFlow.astro';
+import { headingOf, skillMeta } from '../../lib/content';
+
+// The three agent templates keep a .tmpl suffix on disk, so they are shown as
+// the raw source you copy rather than as rendered markdown.
+const contextTemplate = fs.readFileSync(
+  path.join(process.cwd(), '../kit/CLAUDE.md.tmpl'),
+  'utf8'
+);
+
+const FILL_ORDER = ['research', 'techspec', 'quality-gate'];
+const templates = await getCollection('kitTemplates');
+const readme = templates.find((entry) => entry.id.toLowerCase() === 'readme');
+const fillable = templates
+  .filter((entry) => entry.id.toLowerCase() !== 'readme')
+  .sort((a, b) => FILL_ORDER.indexOf(a.id) - FILL_ORDER.indexOf(b.id));
+
+const adrTemplate = (await getCollection('kitAdr'))[0];
+
+const promptEntries = (await getCollection('prompts')).sort((a, b) => a.id.localeCompare(b.id));
+const skillEntries = (await getCollection('kitSkills')).sort((a, b) => a.id.localeCompare(b.id));
+
+const readmeRendered = readme ? await render(readme) : null;
+
+const files = await Promise.all(
+  [...fillable, ...(adrTemplate ? [adrTemplate] : [])].map(async (entry) => ({
+    id: entry.id,
+    title: headingOf(entry.body, entry.id),
+    source:
+      entry.id === '000-template'
+        ? 'kit/adrs/000-template.md'
+        : `kit/${entry.id.toUpperCase()}.md`,
+    Content: (await render(entry)).Content,
+  }))
+);
+
+const prompts = await Promise.all(
+  promptEntries.map(async (entry) => ({
+    id: entry.id,
+    title: headingOf(entry.body, entry.id).replace(/^Prompt\s*[—-]\s*/, ''),
+    source: `kit/prompts/${entry.id}.md`,
+    Content: (await render(entry)).Content,
+  }))
+);
+
+const skills = await Promise.all(
+  skillEntries.map(async (entry) => {
+    const meta = skillMeta(entry);
+    return {
+      id: entry.id.split('/')[0],
+      ...meta,
+      source: `kit/skills/${entry.id}`,
+      Content: (await render(entry)).Content,
+    };
+  })
+);
+---
+
+<Doc
+  title="The kit"
+  description="The blank files you copy into a working tree: the context file, the research and spec templates, the ADR template, nine phase prompts, and seven skills."
+  eyebrow="Reference"
+  source="kit/README.md"
+  headings={[
+    { depth: 2, slug: 'files-you-fill', text: 'Files you fill' },
+    { depth: 2, slug: 'phase-prompts', text: 'Phase prompts' },
+    { depth: 2, slug: 'skills', text: 'Skills' },
+    { depth: 2, slug: 'what-travels', text: 'What travels' },
+  ]}
+>
+  {readmeRendered && <readmeRendered.Content />}
+
+  <Callout kind="stop">
+    <p>
+      The agent may draft a skill. A human accepts or rewrites it. Unreviewed skills are vibe
+      coding with extra markdown.
+    </p>
+  </Callout>
+
+  <h2 id="files-you-fill">Files you fill</h2>
+  <p>
+    Every <code>TODO</code> below is a decision the routine refuses to make for you. The worked
+    example shows the same files filled in for a Go brief.
+  </p>
+
+  <details class="entry" id="file-claude" open>
+    <summary>
+      <span class="entry-title">Project context</span>
+      <span class="entry-desc">the file every task starts by reading</span>
+      <code class="entry-source">kit/CLAUDE.md.tmpl</code>
+    </summary>
+    <div class="entry-body">
+      <p class="raw-note">
+        Shown as raw markdown: this is the file <code>copy-kit.sh</code> renames to
+        <code>CLAUDE.md</code> in the working tree. <code>AGENTS.md.tmpl</code> and
+        <code>GROK.md.tmpl</code> are three-line pointers to it.
+      </p>
+      <pre class="raw"><code>{contextTemplate}</code></pre>
+    </div>
+  </details>
+
+  {
+    files.map((file) => (
+      <details class="entry" id={`file-${file.id}`}>
+        <summary>
+          <span class="entry-title">{file.title}</span>
+          <code class="entry-source">{file.source}</code>
+        </summary>
+        <div class="entry-body">
+          <file.Content />
+        </div>
+      </details>
+    ))
+  }
+
+  <h2 id="phase-prompts">Phase prompts</h2>
+  <p>
+    One file per phase, pasted whole. Two steps of the routine have no prompt on purpose: you
+    write <code>CLAUDE.md</code> yourself, and the ADRs are drafted by the second prompt in the
+    tech-spec file.
+  </p>
+
+  {
+    prompts.map((prompt) => (
+      <details class="entry" id={`prompt-${prompt.id}`} open>
+        <summary>
+          <span class="entry-num">{prompt.id.slice(0, 2)}</span>
+          <span class="entry-title">{prompt.title}</span>
+          <code class="entry-source">{prompt.source}</code>
+        </summary>
+        <div class="entry-body">
+          <prompt.Content />
+        </div>
+      </details>
+    ))
+  }
+
+  <h2 id="skills">Skills</h2>
+  <p>
+    Each skill is law for one phase. Fill every <code>TODO</code> with the target language after
+    the crash course; generic advice attached to a prompt changes nothing.
+  </p>
+
+  {
+    skills.map((skill) => (
+      <details class="entry" id={`skill-${skill.id}`}>
+        <summary>
+          <span class="entry-title">{skill.title}</span>
+          <span class="entry-desc">{skill.description}</span>
+          <code class="entry-source">{skill.source}</code>
+        </summary>
+        <div class="entry-body">
+          <skill.Content />
+        </div>
+      </details>
+    ))
+  }
+
+  <h2 id="what-travels">What travels into the working tree</h2>
+  <Figure caption="copy-kit.sh renames the three agent templates, copies the files you fill, brings the pre-flight checklist across, and generates a README that records which playbook commit produced the tree. The method pages stay behind on purpose.">
+    <KitFlow />
+  </Figure>
+</Doc>
+
+<script is:inline>
+  (() => {
+    const openTarget = () => {
+      if (!location.hash) return;
+      const target = document.querySelector(location.hash);
+      const details = target?.closest('details');
+      if (details && !details.open) {
+        details.open = true;
+        target.scrollIntoView({ block: 'start' });
+      }
+    };
+    openTarget();
+    window.addEventListener('hashchange', openTarget);
+  })();
+</script>
+
+<style>
+  .entry {
+    border: var(--border-thin) solid var(--rule);
+    background: var(--sheet);
+    margin-top: var(--space-3);
+  }
+  .entry[open] {
+    border-color: var(--rule-strong);
+  }
+  .entry summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    cursor: pointer;
+    list-style: none;
+  }
+  .entry summary::-webkit-details-marker {
+    display: none;
+  }
+  .entry summary::before {
+    content: '+';
+    font-family: var(--font-mono);
+    color: var(--accent);
+    width: 0.8em;
+  }
+  .entry[open] summary::before {
+    content: '–';
+  }
+  .entry summary:hover {
+    background: var(--wash);
+  }
+  .entry-num {
+    font-family: var(--font-mono);
+    font-size: var(--size-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
+  }
+  .entry-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--size-md);
+  }
+  .entry-desc {
+    font-family: var(--font-display);
+    font-size: var(--size-sm);
+    color: var(--ink-soft);
+    flex: 1 1 14rem;
+    min-width: 0;
+  }
+  .entry-source {
+    font-size: var(--size-xs);
+    color: var(--ink-faint);
+    margin-left: auto;
+  }
+  .entry-body {
+    padding: var(--space-2) var(--space-4) var(--space-5);
+    border-top: var(--border-thin) solid var(--rule);
+  }
+  .entry-body :global(h1) {
+    display: none;
+  }
+  .entry-body :global(h2) {
+    font-family: var(--font-mono);
+    font-size: var(--size-xs);
+    font-weight: 600;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border: 0;
+    padding-top: 0;
+    margin-top: var(--space-4);
+  }
+  .entry-body :global(* + *) {
+    margin-top: var(--space-3);
+  }
+  .raw-note {
+    font-family: var(--font-display);
+    font-size: var(--size-sm);
+    color: var(--ink-soft);
+  }
+  .raw {
+    background: var(--wash);
+    border: var(--border-thin) solid var(--rule);
+    padding: var(--space-4);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: var(--size-xs);
+    line-height: var(--leading-normal);
+    max-height: 32rem;
+    overflow-y: auto;
+  }
+</style>

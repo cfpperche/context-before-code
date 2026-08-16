@@ -1,0 +1,118 @@
+---
+const steps = [
+  { n: '0', title: 'Crash course', artifact: 'notes in CLAUDE.md' },
+  { n: '1', title: 'Choose the stack', artifact: 'one paragraph' },
+  { n: '2', title: 'Write context', artifact: 'CLAUDE.md' },
+  { n: '3', title: 'Research', artifact: 'RESEARCH.md' },
+  { n: '4', title: 'Tech spec', artifact: 'TECHSPEC.md' },
+  { n: '5', title: 'Implement in phases', artifact: 'prompts + skills' },
+  { n: '6', title: 'Record decisions', artifact: 'adrs/*.md' },
+  { n: '7', title: 'Quality gate', artifact: 'QUALITY-GATE.md' },
+];
+const x = (i: number) => 60 + i * 150;
+---
+
+<svg
+  viewBox="0 0 1160 250"
+  role="img"
+  aria-label="The routine runs as eight numbered steps: crash course, choose the stack, write context, research and tech spec happen before the solution tree is opened; implement in phases, record decisions and quality gate happen after."
+  class="spine-figure"
+>
+  <line class="spine" x1="60" y1="120" x2="1110" y2="120"></line>
+
+  {
+    steps.slice(0, -1).map((_, i) => (
+      <polyline class="chev" points={`${x(i) + 68},114 ${x(i) + 76},120 ${x(i) + 68},126`} />
+    ))
+  }
+
+  {
+    steps.map((step, i) => (
+      <g>
+        <text class="title" x={x(i)} y="92" text-anchor="middle">
+          {step.title}
+        </text>
+        <rect class="box" x={x(i) - 15} y="106" width="30" height="30"></rect>
+        <text class="num" x={x(i)} y="126" text-anchor="middle">
+          {step.n}
+        </text>
+        <text class="artifact" x={x(i)} y="158" text-anchor="middle">
+          {step.artifact}
+        </text>
+      </g>
+    ))
+  }
+
+  <line class="gate" x1="735" y1="62" x2="735" y2="176"></line>
+  <text class="gate-label" x="735" y="52" text-anchor="middle">the solution tree opens here</text>
+
+  <path class="bracket" d="M48 186 v12 h624 v-12"></path>
+  <text class="bracket-label" x="360" y="216" text-anchor="middle">
+    preparation — files exist before any implementation prompt
+  </text>
+
+  <path class="bracket" d="M798 186 v12 h324 v-12"></path>
+  <text class="bracket-label" x="960" y="216" text-anchor="middle">
+    implementation — one phase, one prompt, one gate
+  </text>
+</svg>
+
+<style>
+  .spine-figure {
+    color: var(--ink);
+  }
+  .spine {
+    stroke: var(--rule-strong);
+    stroke-width: 1;
+  }
+  .chev {
+    fill: none;
+    stroke: var(--rule-strong);
+    stroke-width: 1.4;
+    stroke-linecap: square;
+  }
+  .box {
+    fill: var(--sheet);
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  .num {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 600;
+    fill: var(--accent);
+  }
+  .title {
+    font-family: var(--font-display);
+    font-size: 12.5px;
+    font-weight: 600;
+    fill: var(--ink);
+  }
+  .artifact {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    fill: var(--ink-soft);
+  }
+  .gate {
+    stroke: var(--stop);
+    stroke-width: 1.4;
+    stroke-dasharray: 4 4;
+  }
+  .gate-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    fill: var(--stop);
+  }
+  .bracket {
+    fill: none;
+    stroke: var(--rule-strong);
+    stroke-width: 1;
+  }
+  .bracket-label {
+    font-family: var(--font-display);
+    font-size: 12px;
+    fill: var(--ink-soft);
+  }
+</style>
