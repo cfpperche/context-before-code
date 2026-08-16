@@ -1,0 +1,19 @@
+.DS_Store
+Thumbs.db
+*~
+*.swp
+.idea/
+.vscode/
+.env
+.env.*
+!.env.example
+tmp/
+dist/
+
+# Personal agent overrides. Project skills and rules stay tracked.
+CLAUDE.local.md
+AGENTS.override.md
+.claude/*.local.*
+.grok/*.local.*
+.codex/
+.cursor/

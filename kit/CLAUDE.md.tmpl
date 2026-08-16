@@ -1,0 +1,75 @@
+# Project context
+
+Read this file before any task. If a later file conflicts with this one, stop
+and ask. Do not "be helpful" by expanding scope.
+
+## What this is
+
+TODO: one paragraph. What the take-home asks you to build, for whom, in what
+timebox.
+
+## Stack
+
+- Language:
+- HTTP:
+- Store:
+- Test runner:
+- Forbidden libraries:
+- Allowed libraries:
+
+## Why this stack
+
+TODO: one paragraph. Confirm the company's default stack and the AI policy.
+
+## Evaluator criteria
+
+Primary (optimize these):
+
+1. TODO
+2. TODO
+3. TODO
+
+Secondary (do not sacrifice a primary for these):
+
+- TODO
+
+## Language bar (rejection tests)
+
+The agent must not emit code that fails these. Add them during the crash course.
+
+- Errors: TODO
+- Concurrency / ownership: TODO
+- Naming / packages: TODO
+- Tests: TODO
+
+## Hard constraints
+
+- Timebox:
+- Persistence:
+- Auth:
+- Deploy / Docker / CI:
+- Anything the brief forbids:
+
+## Out of scope (preview)
+
+The full list lives in `TECHSPEC.md`. Until that file exists, do not implement.
+
+## How the agent may work
+
+- Do not write implementation code until `TECHSPEC.md` exists and the current
+  phase prompt says so.
+- One phase per turn. Touch only the files the phase prompt names.
+- Do not add dependencies that are not in this file.
+- Do not refactor passing phases "while here".
+- If the spec is wrong, stop. Propose a spec edit. Do not silently patch code.
+
+## Current phase
+
+TODO: `not-started` | `crash-course` | `research` | `techspec` | `failing-tests` |
+`models` | `handlers` | `middleware` | `docs` | `quality-gate` | `done`
+
+## Definition of done
+
+- `QUALITY-GATE.md` is fully checked
+- README tells a reviewer how to run tests in one command
+- You can explain every ADR without opening the agent chat
