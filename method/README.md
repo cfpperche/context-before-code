@@ -46,5 +46,9 @@ Budget most of the clock *before* the first passing test. A common split on an
 | Implementation phases | 3.0–4.0 |
 | Quality gate + README pass | 0.5–1.0 |
 
+This split is a working heuristic, not something the methods in
+[`../BIBLIOGRAPHY.md`](../BIBLIOGRAPHY.md) prescribe. Treat it as a starting
+budget and adjust it to your brief.
+
 If you invert this (code first, docs later), you are vibe coding with extra
 files.

@@ -39,11 +39,12 @@ The methods this sequence instantiates are listed in [BIBLIOGRAPHY.md](BIBLIOGRA
 git clone git@github.com:cfpperche/context-before-code.git
 cd context-before-code
 ./scripts/copy-kit.sh ~/work/acme-takehome
-cd ~/work/acme-takehome
 ```
 
-Then walk [`method/`](method/README.md) in order. Fill `CLAUDE.md` before you
-paste a single implementation prompt.
+Walk [`method/`](method/README.md) in order — the method pages stay here, in
+the playbook, and the files you fill live in the working tree you just
+created. Keep both open. Fill `CLAUDE.md` before you paste a single
+implementation prompt.
 
 Read [`examples/catalog-compare-api/`](examples/catalog-compare-api/README.md)
 to see a filled kit. That example is invented for this repository.
@@ -62,7 +63,7 @@ Agents that operate *this* repository read [`AGENTS.md`](AGENTS.md).
 
 ## Rules that are not optional
 
-1. **Follow the brief you were given.** If the brief forbids AI, do not use this kit.
+1. **Follow the brief you were given.** If the brief forbids AI, do not point an agent at this kit. The routine is still yours to run by hand.
 2. **Crash course first.** If you cannot review the output, you cannot submit it.
 3. **Do not claim fluency you do not have.** Using this kit in Go does not make you a Go engineer.
 4. **Judgment is the product.** A reviewer can still ask why the compare endpoint returns per-item status, why there is no database, and what you would change in week two. If you cannot answer, the packet failed.

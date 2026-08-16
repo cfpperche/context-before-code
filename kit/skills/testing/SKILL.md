@@ -19,6 +19,11 @@ description: >
 Copy the test plan from `TECHSPEC.md`. Do not invent extra suites that the
 evaluator criteria do not score.
 
+Every status the contract can produce needs a case, and every domain status
+the spec defines needs a fixture that reaches it. On an error case assert the
+body shape as well as the number: a status-only assertion passes against the
+framework's default error page.
+
 ## Fail for the right reason
 
 Red means "behavior missing". Red does not mean "test does not compile"
@@ -27,7 +32,8 @@ or "imported a package we have not written on purpose without a stub".
 ## Concurrency
 
 If the store is shared in-memory, include a test the race detector can catch
-if the lock is removed.
+if the lock is removed. Race tests are probabilistic: run them with a repeat
+count before you call the row green.
 
 ## Do not
 

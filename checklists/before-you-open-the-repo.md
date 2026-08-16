@@ -10,9 +10,14 @@ still in preparation.
 - [ ] Primary evaluator criteria are copied from the brief, not from memory
 - [ ] `RESEARCH.md` has three passes and a Decisions section you accepted
 - [ ] `TECHSPEC.md` has a contract table, sample data, and an out-of-scope table
+- [ ] The spec answers content type, unknown fields, body cap, unknown route,
+      wrong method, and timeout — not just the happy paths
+- [ ] Every state your domain can report has sample data that reaches it
+- [ ] The coverage floor is a number in the spec
 - [ ] ADRs 001+ exist for persistence, layout, status policy, and refusals
 - [ ] Skills have no remaining `TODO` in the sections you will attach
 - [ ] Phase prompts are in the working tree
 - [ ] `CLAUDE.md` current phase is `failing-tests`, not `not-started`
 
-Only then: open the module, paste `kit/prompts/04-failing-tests.md`.
+Only then: open the module and paste the failing-tests prompt
+(`prompts/04-failing-tests.md` in the working tree).

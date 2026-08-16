@@ -25,9 +25,16 @@ on [adr.github.io](https://adr.github.io/)).
 
 ## Shape
 
-Use [`../kit/adrs/000-template.md`](../kit/adrs/000-template.md).
+Use [`../kit/adrs/000-template.md`](../kit/adrs/000-template.md). The drafting
+prompt is the second block of
+[`../kit/prompts/03-techspec.md`](../kit/prompts/03-techspec.md) — ADRs are
+written in the tech-spec phase, not in a phase of their own.
 
 Keep each ADR to one decision. "We kept the design simple" is not a decision.
+
+The refusal ADR records the *policy* and the argument. The list of refused
+items lives in the spec's out-of-scope table. Two copies drift, and the drift
+is what a reviewer notices.
 
 ## Stop condition
 

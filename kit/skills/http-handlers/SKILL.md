@@ -23,7 +23,12 @@ Follow the contract table. If compare returns **per-item** status inside a
 ## Errors
 
 Map known domain errors to the envelope. Unknown errors are 500 and must not
-leak internals.
+leak internals. One helper writes every error body, including the ones the
+router produces for unknown routes and wrong methods — a reviewer finds those
+with two `curl`s.
+
+Decide and write down: required request content type, what happens to unknown
+fields in the body, and what an over-sized body returns.
 
 ## Do not
 

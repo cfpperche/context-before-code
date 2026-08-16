@@ -36,6 +36,25 @@ Used in `examples/catalog-compare-api/RESEARCH.md` and the filled skills:
 - [Go blog: routing enhancements](https://go.dev/blog/routing-enhancements)
 - [Uber Go Style Guide](https://github.com/uber-go/guide/blob/master/style.md) — error wrapping, as a large-org style document
 
+## Where these methods disagree
+
+They are not one school, and the routine does not pretend they are.
+
+- **29148-style specification before construction vs XP's emergent design.**
+  One says write the contract and the exclusions first; the other says the
+  design is discovered by writing tests and code. This routine takes the spec
+  from the first and the test-first cascade from the second, because the thing
+  being controlled here is an agent, not a team: an agent will produce a whole
+  service from a vague sentence in seconds, and the spec is the only artifact
+  that makes the output reviewable. On a long-lived codebase with a human team,
+  that trade looks different.
+- **Definition of Done vs YAGNI.** A gate invites ceremony; YAGNI cuts it. The
+  gate here only holds rows the brief scores, which is why "add CI so it looks
+  official" is a refusal and not a row.
+- **The time budget** in `method/README.md` is a heuristic from using this
+  routine, not a finding from any document above. It is labelled as such
+  there.
+
 ## What this file is not
 
 A list of people. Cite the method or the document. If a source is a style

@@ -25,11 +25,21 @@ the destination.
 
 `AGENTS.md` and `GROK.md` stay as pointers. Do not fork the rules into them.
 
+`copy-kit.sh` writes this fill order into the destination's `README.md`, so
+the working tree carries its own instructions.
+
 ## What you submit
 
 Whatever the brief asked for. Usually the service repo, not this kit's
-unfilled templates. Keep `CLAUDE.md`, `TECHSPEC.md`, `adrs/`, and the
-quality-gate notes in the submission if the company asked you to use AI:
-they are evidence of judgment.
+unfilled templates.
 
-If the company forbade AI, you should not have copied this kit.
+If the company asked you to use AI, keep `CLAUDE.md`, `TECHSPEC.md`, `adrs/`,
+and the quality-gate notes in the submission: they are the evidence that the
+judgment was yours. Lead with the code and the README; the packet is
+supporting material, not the deliverable. Some reviewers read a pile of
+generated documents as noise, so link them from the README rather than
+opening with them.
+
+If the brief forbids AI, do not point an agent at this tree. The routine
+itself — context, research, spec, phases, gate — is yours to run by hand, and
+none of it requires a model.

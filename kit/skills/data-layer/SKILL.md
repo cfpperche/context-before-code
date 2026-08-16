@@ -9,7 +9,11 @@ description: >
 
 ## Store API
 
-TODO: interface or type name, methods, error values (`NotFound`, `Conflict`, …).
+TODO: type name, methods, error values (`NotFound`, `Conflict`, …).
+
+One concrete type until a second implementation exists. An interface with a
+single implementation and no fake is surface you have to document and defend
+for nothing. If the ADR says otherwise, the ADR wins — but it has to say it.
 
 ## In-memory rules (if that is the ADR)
 

@@ -31,10 +31,10 @@ The prompt names the skill, the files the agent may touch, and the gate.
 
 ## Tests first means tests first
 
-The first implementation prompt writes tests that fail for the right reason
-(not found, compile-missing type, assertion on the error envelope). If they
-fail because the test file does not compile due to sloppiness, that is not a
-red suite. Fix the tests until they are honest red. Then move.
+The first implementation prompt writes tests that fail for the right reason:
+a missing behavior or a failed assertion, against code that builds. Stubs
+with real signatures are how you get there. A suite that does not compile is
+not red, it is broken — fix it until the failures are honest. Then move.
 
 ## Stop condition
 

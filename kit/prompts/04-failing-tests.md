@@ -26,7 +26,8 @@ Do not create CI, Docker, or README features.
 
 ## Gate (you)
 
-- [ ] Tests compile
+- [ ] Tests compile — a suite that does not build is not red, it is broken
 - [ ] Suite is red
 - [ ] Failures match the spec (not `undefined: main`)
+- [ ] Error cases assert the envelope, not only the status number
 - [ ] Commit: `test: contract is red`
