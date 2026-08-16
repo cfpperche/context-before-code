@@ -16,8 +16,8 @@ description: >
   The memory store still accepts it so the signature survives a later impl.
 - MixedCaps. File names are lowercase: `store.go`, `handler.go`, `compare.go`.
 - Doc comments are sentences that start with the name.
-- Accept the `Store` interface, return the concrete `*Memory` from
-  constructors used in `main`.
+- Pass the concrete `*Memory`. Interfaces are for a caller that has two
+  things to pass; we have one (ADR 001).
 
 ## Do not
 
@@ -32,4 +32,6 @@ description: >
 
 - [ ] Every error that leaves a public function is wrapped or is a sentinel
 - [ ] No package-level `var products = map...`
+- [ ] No premature interfaces: every interface here has two implementations
+      or a fake in a test. Today that means zero interfaces
 - [ ] Package is `catalog` (ADR 002)

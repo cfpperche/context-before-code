@@ -59,6 +59,12 @@ so a reviewer can ask "why not 9457?" and we have an answer.
    score is handling, not spec compliance.
 7. **No pagination, auth, Docker, CI, or extra endpoints** — not asked,
    marginal for the score. See ADR 004.
+8. **Every error response is the envelope, including the ones the stdlib
+   writes for us** — `ServeMux` answers unknown routes and wrong methods in
+   `text/plain`, and `http.TimeoutHandler` writes its own body. Error handling
+   is a primary criterion, so those paths are ours (spec: error table).
+9. **An unknown source behaves as an empty source** — no registry endpoint,
+   so the two are indistinguishable. See ADR 005.
 
 ## Still open
 

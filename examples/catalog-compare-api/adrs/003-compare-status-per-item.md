@@ -36,6 +36,10 @@ not 404.
 - Good: error handling stays reserved for actual errors; tests are stable
 - Bad: a sloppy reviewer skimming status codes may think we ignored diffs
   (README must say this in one sentence)
+- Bad: one status per row means a row that differs in price *and* name reports
+  only `price_diff`. The buyer sees the number they asked about and loses the
+  rest. A `differences: []` array would keep both; it also doubles the shape
+  the tests assert. We chose the small shape and wrote the loss down here
 - Follow-up we are explicitly *not* doing: a `?strict=true` that 409s
 
 ## Not in this decision

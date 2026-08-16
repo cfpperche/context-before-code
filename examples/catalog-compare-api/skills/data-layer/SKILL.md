@@ -9,34 +9,39 @@ description: >
 
 ## Store API
 
+One concrete type. No interface — there is one implementation and the tests
+use it directly (ADR 001).
+
 ```go
-type Store interface {
-    Upsert(ctx context.Context, p Product) error
-    Get(ctx context.Context, source, sku string) (Product, error)
-    List(ctx context.Context, source string) ([]Product, error)
-    Snapshot(ctx context.Context, source string) ([]Product, error)
+type Memory struct {
+    mu   sync.RWMutex
+    data map[string]map[string]Product // source -> sku -> product
 }
+
+func NewMemory() *Memory
+func (m *Memory) Upsert(ctx context.Context, p Product) error
+func (m *Memory) Get(ctx context.Context, source, sku string) (Product, error)
+func (m *Memory) List(ctx context.Context, source string) ([]Product, error)
 ```
 
-`List` and `Snapshot` may be the same implementation. Keep both names only
-if compare wants to say "I am taking a snapshot" in the call.
+`List` is the snapshot. Compare calls it twice; there is no separate
+`Snapshot` method for the same bytes.
 
 Sentinels: `ErrNotFound`, `ErrInvalid`.
 
 ## In-memory rules
 
-- `type Memory struct { mu sync.RWMutex; data map[string]map[string]Product }`
-- `NewMemory() *Memory` allocates the outer map
-- `RLock` on Get/List/Snapshot; `Lock` on Upsert
+- `NewMemory()` allocates the outer map
+- `RLock` on Get/List; `Lock` on Upsert
 - Get returns a copy of the struct (value, not pointer into the map)
-- List/Snapshot return a new slice of values
-- Compare: `left := Snapshot(leftSrc); right := Snapshot(rightSrc)` then
-  diff **without** the lock
+- List returns a new slice of values, sorted by sku so callers are stable
+- Compare: `left, _ := store.List(ctx, leftSrc)`, same for right, then diff
+  **without** the lock
 - Never return `m.data` or an inner map
 
 ## Do not
 
-- A second implementation "for later"
+- An interface "for later" (ADR 001) or a second implementation
 - `sync.Map` (harder to snapshot consistently)
 - Lock in `compare.go` around the diff
 - Hold the lock while encoding JSON
@@ -45,4 +50,5 @@ Sentinels: `ErrNotFound`, `ErrInvalid`.
 
 - Get missing → `ErrNotFound`
 - Upsert same `(source, sku)` replaces fields
+- List of an unknown source → empty slice, no error (ADR 005)
 - Concurrent upserts: `-race` clean

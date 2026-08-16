@@ -13,17 +13,14 @@ are actually scored.
 
 ## Decision
 
-We will not build:
+Refusal is the default. Anything the brief did not ask for and the printed
+criteria do not score stays out, and the refusal is written down instead of
+being built "just in case".
 
-| Item | Why |
-| --- | --- |
-| Real database | Brief allows in-memory. Persistence is not scored. |
-| Auth | Not asked. A token in front of the envelope hides the error signal. |
-| Docker / CI | Not asked. Reviewer runs `go test ./...`. |
-| Pagination / list sort | Marginal. Compare already sorts. |
-| DELETE / PATCH / POST | PUT upsert covers the brief. |
-| CSV upload | Brief is an HTTP product API, not a file pipeline. |
-| Router, ORM, testify | Crash-course bar is stdlib. Extra kits add surface we cannot defend. |
+The list itself lives in one place: the **Out of scope** table in
+`TECHSPEC.md`. This ADR is the policy and the argument; it does not keep a
+second copy of the rows. When we refuse something new, it goes in the spec
+table and, if the reasoning is not obvious, gets its own ADR.
 
 ## Alternatives
 
